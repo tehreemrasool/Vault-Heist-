@@ -1,32 +1,52 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include <iostream>
+#include "screen.h"
+using namespace sf;
+using namespace std;
 
 int main()
 {
-    sf::RenderWindow window(
-        sf::VideoMode(800, 600),
-        "My First SFML Game"
-    );
+	RenderWindow window(VideoMode(1280, 720), "Vault Heist");
+	window.setFramerateLimit(60);
 
-    sf::CircleShape circle(50.f);
-    circle.setFillColor(sf::Color::Green);
-    circle.setPosition(350.f, 250.f);
+	Music music;
+	if (music.openFromFile("assets/themeSong.mp3"))
+	{
+		music.setLoop(true);
+		music.play();
+	}
+	else
+		cout << "Could not load assets/themeSong.mp3 (continuing without music)\n";
 
-    while (window.isOpen())
-    {
-        sf::Event event;
+	MainMenuScreen menu(window);    // screen id 1
+	Level1Screen level(window);     // screen id 2
 
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-            {
-                window.close();
-            }
-        }
+	Screen* current = &menu;
+	int currentId = 1;
+	current->onEnter();
 
-        window.clear(sf::Color::Black);
-        window.draw(circle);
-        window.display();
-    }
+	Clock clock;
+	while (window.isOpen())
+	{
+		float dt = clock.restart().asSeconds();
 
-    return 0;
+		current->handleInput();
+		int next = current->getNextScreen();
+
+		if (next == 99) { window.close(); break; }
+
+		if (next != currentId)
+		{
+			current->onExit();
+			current = (next == 1) ? (Screen*)&menu : (Screen*)&level;
+			currentId = next;
+			current->onEnter();
+		}
+
+		current->update(dt);
+		current->draw();
+		window.display();
+	}
+	return 0;
 }
