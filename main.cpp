@@ -1,52 +1,117 @@
+
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <iostream>
 #include "screen.h"
-using namespace sf;
 using namespace std;
+using namespace sf;
 
 int main()
 {
-	RenderWindow window(VideoMode(1280, 720), "Vault Heist");
-	window.setFramerateLimit(60);
+    // CREATE WINDOW
+    RenderWindow window(VideoMode(1280, 720),"Vault Heist");
+    window.setFramerateLimit(60);
 
-	Music music;
-	if (music.openFromFile("assets/themeSong.mp3"))
-	{
-		music.setLoop(true);
-		music.play();
-	}
-	else
-		cout << "Could not load assets/themeSong.mp3 (continuing without music)\n";
 
-	MainMenuScreen menu(window);    // screen id 1
-	Level1Screen level(window);     // screen id 2
+    
+    Font test;
 
-	Screen* current = &menu;
-	int currentId = 1;
-	current->onEnter();
+    if (!loadFont(test))
+    {
+        cout << "Font not found!" << std::endl;
+        return 1;
+    }
 
-	Clock clock;
-	while (window.isOpen())
-	{
-		float dt = clock.restart().asSeconds();
+    Music music;
 
-		current->handleInput();
-		int next = current->getNextScreen();
+    if (music.openFromFile("assets/themeSong.mp3"))
+    {
+        music.setLoop(true);
+        music.play();
+    }
+    else
+    {
+        cout << "Music not loaded!" <<endl;
+    }
 
-		if (next == 99) { window.close(); break; }
 
-		if (next != currentId)
-		{
-			current->onExit();
-			current = (next == 1) ? (Screen*)&menu : (Screen*)&level;
-			currentId = next;
-			current->onEnter();
-		}
+    MainMenuScreen menu(window);
+    Level1Screen level(window);
+    Level2Screen level2(window);
+    Map map_ (window);
 
-		current->update(dt);
-		current->draw();
-		window.display();
-	}
-	return 0;
+
+    // START WITH MAIN MENU
+    Screen* current = &menu;
+    int currentId = 1;
+
+    current->onEnter();
+
+
+    // CLOCK
+    Clock clock;
+
+
+    // MAIN GAME LOOP
+    while (window.isOpen())
+    {
+        float dt = clock.restart().asSeconds();
+        current->handleInput();
+
+
+        // CHECK WHICH SCREEN SHOULD OPEN
+        int next = current->getNextScreen();
+
+
+        // EXIT GAME
+        if (next == 99)
+        {
+            window.close();
+            break;
+        }
+
+
+        // CHANGE SCREEN
+        if (next != currentId)
+        {
+            current->onExit();
+
+            if (next == 1)
+            {
+                current = &menu;
+            }
+            else if (next == 2)
+            {
+                current = &level;
+            }
+            else if (next == 3)
+            {
+                current = &level2;
+            }
+            
+            else if (next == 24)
+            {
+                current = &map_;
+            }
+            
+
+            currentId = next;
+
+            current->onEnter();
+        }
+
+
+        // UPDATE SCREEN
+        current->update(dt);
+
+
+        // DRAW SCREEN
+        current->draw();
+
+
+        // DISPLAY EVERYTHING
+        window.display();
+    }
+
+    return 0;
 }
