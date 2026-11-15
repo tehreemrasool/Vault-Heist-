@@ -18,7 +18,7 @@ int main()
 
     if (!loadFont(test))
     {
-        cout << "Font not found!" << std::endl;
+        cout << "Font not found!" <<endl;
         return 1;
     }
 

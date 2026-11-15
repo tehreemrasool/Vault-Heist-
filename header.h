@@ -352,3 +352,82 @@ inline TreeNode* mirror(TreeNode* root)
 	return root;
 }
 
+//======================================ACT 4==================================================
+
+//------------------------------------Level 1----------------------------------------------------
+
+class maxHeap
+{
+	int* heap;
+	int cap;
+	int size;
+
+public:
+	maxHeap(int c)
+	{
+		cap = c;
+		heap = new int[c];
+		size = 0;
+	}
+
+	void insert(int n)
+	{
+		heap[size] = n;
+		size++;
+		int i = size-1;
+		while (i > 0)
+		{
+			int parent = (i - 1) / 2;
+
+			if (heap[parent] < heap[i])
+			{
+				int temp = heap[parent];
+				heap[parent] = heap[i];
+				heap[i] = temp;
+				i = parent;
+			}
+			else break;
+
+		}
+	}
+
+	
+};
+
+void siftDown(int i, int heapSize, int heap[])
+{
+	int max = i;
+	while (true)
+	{
+		int left = 2 * i + 1;
+		int right = 2 * i + 2;
+		if (heap[i] < heap[left])
+		{
+			int temp = heap[i];
+			heap[i] = heap[left];
+			heap[left] = temp;
+		}
+		if (heap[i] < heap[right])
+		{
+			int temp = heap[i];
+			heap[i] = heap[right];
+			heap[right] = temp;
+		}
+
+	}
+
+}
+
+
+maxHeap buildMaxHeap(int arr[],int s)
+{
+	maxHeap heap(s);
+	for (int i = 0; i < s; i++)
+	{
+		heap.insert(arr[i]);
+	}
+	return heap;
+}
+
+
+

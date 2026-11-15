@@ -216,26 +216,34 @@ TreeNode* findClickedNode(TreeNode* root, float x, float y)
 MainMenuScreen::MainMenuScreen(RenderWindow& win) : Screen(win), button(35, 100), nextScreen(1)
 {
     font.loadFromFile("assets/fonts/SuperShiny.ttf");
-
+    font2.loadFromFile("assets/fonts/MedievalSharp.ttf");
     title.setFont(font);
+    storyLine.setFont(font2);
+    storyLine.setString("Legends speak of an ancient vault hidden beneath a forgotten kingdom.\nIt holds treasures beyond imagination,\nguarded by puzzles no one has ever solved.\nCan you find it ? ");
+    storyLine.setFillColor(Color(212, 110, 194));
+    storyLine.setCharacterSize(25);
+    storyLine.setPosition(300, 250);
+    storyLine.setOutlineColor(Color::Black);
+    storyLine.setOutlineThickness(3);
     title.setString("Vault heist");
     title.setCharacterSize(100);
     title.setFillColor(Color::White);
     title.setOutlineColor(Color::Black);
-    title.setOutlineThickness(3);
+    title.setOutlineThickness(1);
     title.setPosition(400, 100);
 
-    button.setPosition(500, 350);
+    button.setPosition(500, 500);
     button.setScale(3.5f, 1.0f);
-    button.setFillColor(Color(248, 117, 170));
+    button.setFillColor(Color(212, 110, 194, 120));
 
     buttonText.setFont(font);
     buttonText.setString("START GAME");
     buttonText.setCharacterSize(25);
     buttonText.setFillColor(Color::Black);
-    buttonText.setPosition(570, 370);
+    buttonText.setPosition(570, 520);
 
-    backgroundTexture.loadFromFile("assets/pictures/mainbg.jfif");
+    //backgroundTexture.loadFromFile("assets/pictures/disneyland.jpg");
+    backgroundTexture.loadFromFile("assets/pictures/Hmain.jfif");
     background.setTexture(backgroundTexture);
     background.setScale(1280.0f / backgroundTexture.getSize().x,
         720.0f / backgroundTexture.getSize().y);
@@ -268,6 +276,7 @@ void MainMenuScreen::draw()
 {
     window.clear();
     window.draw(background);
+    window.draw(storyLine);
     window.draw(title);
     window.draw(button);
     window.draw(buttonText);
@@ -281,7 +290,8 @@ Level1Screen::Level1Screen(RenderWindow& win) : Screen(win)
 {
     loadFont(font);
 
-    if (backgroundTexture.loadFromFile("assets/pictures/act1level1.jfif"))
+    //if (backgroundTexture.loadFromFile("assets/pictures/bg1.jfif"))
+    if (backgroundTexture.loadFromFile("assets/pictures/bg4.jfif"))
     {
         background.setTexture(backgroundTexture);
 
@@ -500,66 +510,51 @@ void Level1Screen::draw()
 
 
 // ---------------- Level2Screen ----------------
-static void drawLine(sf::RenderWindow& w, float x1, float y1, float x2, float y2,
-    float thick, Color c)
-{
-    float dx = x2 - x1, dy = y2 - y1;
-    float len = std::sqrt(dx * dx + dy * dy);
-    if (len < 0.5f) return;
-    sf::RectangleShape r(sf::Vector2f(len, thick));
-    r.setOrigin(0.f, thick / 2.f);
-    r.setPosition(x1, y1);
-    r.setRotation(std::atan2(dy, dx) * 180.f / 3.14159265f);
-    r.setFillColor(c);
-    w.draw(r);
-}
 
-Level2Screen::Level2Screen(sf::RenderWindow& win) : Screen(win)
+Level2Screen::Level2Screen(RenderWindow& win) : Screen(win)
 {
     loadFont(font);
-    nextScreen = 3;
-    radius = 24;
-    portR = 9;
-    mode = act1Level2::INPRE;
-    drag = -1;
-    portFrom = -1;
-    portSide = 0;
-    offX = offY = 0;
-    msgTime = 0;
-    seed = (unsigned)time(NULL) + 7;
-    for (int i = 0; i < 15; i++)
-        px[i] = py[i] = homeX[i] = homeY[i] = 0;
-}
 
-void Level2Screen::setMsg(const std::string& s)
-{
-    message = s;
-    msgTime = 2.5f;
-}
-
-void Level2Screen::newPuzzle(int m)
-{
-    mode = m;
-    srand(seed++);
-    level.start(mode, 5 + rand() % 5);      // 5..9 rooms
-    drag = -1;
-    portFrom = -1;
-    msgTime = 0;
-    placePieces();
-}
-
-void Level2Screen::placePieces()
-{
-    int n = level.getN();
-    float spacing = 1000.0f / (n > 1 ? n - 1 : 1);
-    if (spacing > 110) spacing = 110;
-    float x0 = W / 2.0f - spacing * (n - 1) / 2.0f;
-    for (int i = 0; i < n; i++)
+    if (backgroundTexture.loadFromFile("assets/pictures/bglevel.jfif"))
     {
-        homeX[i] = x0 + i * spacing;
-        homeY[i] = H - 60.0f;
-        px[i] = homeX[i];
-        py[i] = homeY[i];
+        background.setTexture(backgroundTexture);
+        background.setScale(1280.0f / backgroundTexture.getSize().x,
+            720.0f / backgroundTexture.getSize().y);
+    }
+
+    nextScreen = 3;
+    selectedNode = -1;
+    curMode = act1Level2::INPRE;
+    seed = (unsigned)time(NULL) + 7;
+    flashTime = 0;
+    statusMsg = "";
+
+    for (int i = 0; i < 15; i++)
+    {
+        nodeX[i] = 0;
+        nodeY[i] = 0;
+    }
+}
+
+// Generate a new puzzle and arrange nodes in two simple rows
+void Level2Screen::newPuzzle()
+{
+    srand(seed++);
+    int count = 5 + rand() % 4; // 5 to 8 rooms
+    level.start(curMode, count);
+
+    selectedNode = -1;
+    flashTime = 0;
+    statusMsg = "Click a parent room, then Left-Click (Left Child) or Right-Click (Right Child)";
+
+    // Arrange nodes cleanly in a grid so there is no dragging needed
+    int cols = 4;
+    for (int i = 0; i < count; i++)
+    {
+        int row = i / cols;
+        int col = i % cols;
+        nodeX[i] = 320.0f + col * 210.0f;
+        nodeY[i] = 260.0f + row * 170.0f;
     }
 }
 
@@ -567,121 +562,115 @@ void Level2Screen::onEnter()
 {
     isActive = true;
     nextScreen = 3;
-    newPuzzle(rand() % 2);
-}
-
-void Level2Screen::moveSubtree(int i, float dx, float dy)
-{
-    if (i < 0) return;
-    px[i] += dx;
-    py[i] += dy;
-    moveSubtree(level.getChild(i, 0), dx, dy);
-    moveSubtree(level.getChild(i, 1), dx, dy);
-}
-
-int Level2Screen::hitNode(float mx, float my) const
-{
-    for (int i = level.getN() - 1; i >= 0; i--)      // topmost first
-    {
-        float dx = mx - px[i], dy = my - py[i];
-        if (dx * dx + dy * dy <= radius * radius) return i;
-    }
-    return -1;
-}
-
-void Level2Screen::portPos(int i, int side, float& x, float& y) const
-{
-    x = px[i] + (side == 0 ? -1.0f : 1.0f) * radius * 0.75f;
-    y = py[i] + radius * 0.75f;
-}
-
-bool Level2Screen::hitPort(float mx, float my, int& piece, int& side) const
-{
-    for (int i = level.getN() - 1; i >= 0; i--)
-    {
-        for (int s = 0; s < 2; s++)
-        {
-            float x, y;
-            portPos(i, s, x, y);
-            float dx = mx - x, dy = my - y;
-            if (dx * dx + dy * dy <= portR * portR)
-            {
-                piece = i; side = s;
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-void Level2Screen::doCheck()
-{
-    if (level.getState() == act1Level2::WON) return;
-    if (level.linkCount() < level.getN() - 1)
-        setMsg("Link all the rooms into one tree first.");
-    else if (!level.check())
-        setMsg("Not quite - that tree doesn't match both sequences.");
+    newPuzzle();
 }
 
 void Level2Screen::handleInput()
 {
-    sf::Event e;
+    Event e;
+
     while (window.pollEvent(e))
     {
-        if (e.type == sf::Event::Closed) nextScreen = 99;
+        if (e.type == Event::Closed)
+            nextScreen = 99;
 
-        if (e.type == sf::Event::MouseButtonPressed)
+        // MOUSE CLICK
+        if (e.type == Event::MouseButtonPressed)
         {
-            float mx = (float)e.mouseButton.x, my = (float)e.mouseButton.y;
+            float mx = (float)e.mouseButton.x;
+            float my = (float)e.mouseButton.y;
 
-            if (e.mouseButton.button == sf::Mouse::Left)
+            // Check if player clicked inside any node circle (radius = 30)
+            int clicked = -1;
+            for (int i = 0; i < level.getN(); i++)
             {
-                if (isMouseOver(window, 1040, 14, 200, 40)) doCheck();
-                else if (isMouseOver(window, 1040, 62, 200, 40)) newPuzzle(mode);
+                float dx = mx - nodeX[i];
+                float dy = my - nodeY[i];
+                if (dx * dx + dy * dy <= 30.0f * 30.0f)
+                {
+                    clicked = i;
+                    break;
+                }
+            }
+
+            if (clicked != -1)
+            {
+                // First click selects the parent node
+                if (selectedNode == -1)
+                {
+                    selectedNode = clicked;
+                }
+                // Clicking the same node again deselects it and cuts its parent link
+                else if (selectedNode == clicked)
+                {
+                    level.detach(clicked);
+                    selectedNode = -1;
+                }
+                // Second click connects 'clicked' as Left or Right child of 'selectedNode'
                 else
                 {
-                    int p, s;
-                    if (hitPort(mx, my, p, s)) { portFrom = p; portSide = s; }
-                    else
+                    int side = (e.mouseButton.button == Mouse::Left)
+                        ? act1Level2::LEFT
+                        : act1Level2::RIGHT;
+
+                    if (!level.connect(selectedNode, side, clicked))
                     {
-                        int h = hitNode(mx, my);
-                        if (h != -1) { drag = h; offX = mx - px[h]; offY = my - py[h]; }
+                        flashTime = 0.35f;
+                        statusMsg = "Cannot create a loop!";
                     }
+                    selectedNode = -1;
                 }
             }
-            else if (e.mouseButton.button == sf::Mouse::Right)
+            else
             {
-                int h = hitNode(mx, my);
-                if (h != -1) level.detach(h);          // cut from its parent
+                // Clicking empty space cancels selection
+                selectedNode = -1;
             }
         }
 
-        if (e.type == sf::Event::MouseButtonReleased && e.mouseButton.button == sf::Mouse::Left)
+        // KEYBOARD (Matches Level 1 controls)
+        if (e.type == Event::KeyPressed)
         {
-            if (portFrom != -1)
-            {
-                int t = hitNode((float)e.mouseButton.x, (float)e.mouseButton.y);
-                if (t != -1 && t != portFrom)
-                {
-                    if (!level.connect(portFrom, portSide, t))
-                        setMsg("That link isn't allowed (it would make a loop).");
-                }
-                portFrom = -1;
-            }
-            drag = -1;
-        }
+            if (e.key.code == Keyboard::Escape)
+                nextScreen = 1;
 
-        if (e.type == sf::Event::KeyPressed)
-        {
-            if (e.key.code == sf::Keyboard::Escape) nextScreen = 1;
-            else if (e.key.code == sf::Keyboard::Return) doCheck();
-            else if (e.key.code == sf::Keyboard::N) newPuzzle(mode);
-            else if (e.key.code == sf::Keyboard::Num1) newPuzzle(act1Level2::INPRE);
-            else if (e.key.code == sf::Keyboard::Num2) newPuzzle(act1Level2::INPOST);
-            else if (e.key.code == sf::Keyboard::Space)
+            else if (e.key.code == Keyboard::R)
+                newPuzzle();
+
+            else if (e.key.code == Keyboard::Space)
             {
                 level.clearLinks();
-                if (level.getState() == act1Level2::PLAYING) placePieces();
+                selectedNode = -1;
+            }
+
+            else if (e.key.code == Keyboard::Num1)
+            {
+                curMode = act1Level2::INPRE;
+                newPuzzle();
+            }
+
+            else if (e.key.code == Keyboard::Num2)
+            {
+                curMode = act1Level2::INPOST;
+                newPuzzle();
+            }
+
+            else if (e.key.code == Keyboard::Return)
+            {
+                if (level.getState() == act1Level2::WON)
+                {
+                    nextScreen = 1; // or next level screen ID
+                }
+                else if (level.linkCount() < level.getN() - 1)
+                {
+                    flashTime = 0.35f;
+                    statusMsg = "Connect all rooms first!";
+                }
+                else if (!level.check())
+                {
+                    flashTime = 0.35f;
+                    statusMsg = "Wrong tree! Try again.";
+                }
             }
         }
     }
@@ -689,141 +678,121 @@ void Level2Screen::handleInput()
 
 void Level2Screen::update(float dt)
 {
-    if (msgTime > 0) msgTime -= dt;
-
-    if (drag != -1)
-    {
-        sf::Vector2i mp = sf::Mouse::getPosition(window);
-        float tx = mp.x - offX, ty = mp.y - offY;
-        if (tx < radius) tx = radius;
-        if (tx > W - radius) tx = W - radius;
-        if (ty < 135 + radius) ty = 135 + radius;
-        if (ty > H - radius) ty = H - radius;
-        moveSubtree(drag, tx - px[drag], ty - py[drag]);     // children follow
-    }
+    if (flashTime > 0)
+        flashTime -= dt;
 }
 
 void Level2Screen::draw()
 {
+    window.clear();
+    window.draw(background);
+
     int n = level.getN();
-    bool won = (level.getState() == act1Level2::WON);
-    sf::Vector2i mp = sf::Mouse::getPosition(window);
 
-    window.clear(sf::Color(24, 26, 38));
+    // TITLE
+    drawText(window, font, "ACT 1 - LEVEL 2", 40, 500, 15, Color::White, false);
 
-    // top panel
-    sf::RectangleShape top(sf::Vector2f((float)W, 135));
-    top.setFillColor(sf::Color(32, 35, 52));
-    window.draw(top);
-    drawLine(window, 0, 135, (float)W, 135, 3, sf::Color(200, 165, 70));
+    // TOP BOXES (Same style as Level 1)
+    RectangleShape seqBox1(Vector2f(420, 45));
+    RectangleShape seqBox2(Vector2f(420, 45));
 
-    // bottom tray
-    sf::RectangleShape tray(sf::Vector2f((float)W, (float)(H - 585)));
-    tray.setPosition(0, 585);
-    tray.setFillColor(sf::Color(34, 37, 54));
-    window.draw(tray);
-    drawLine(window, 0, 585, (float)W, 585, 3, sf::Color(200, 165, 70));
-    drawText(window, font, "Rooms - drag them up into the map", 14, 20, 592,
-        sf::Color(150, 155, 180), false);
+    seqBox1.setPosition(50, 70);
+    seqBox2.setPosition(810, 70);
+    seqBox1.setFillColor(Color::Black);
+    seqBox2.setFillColor(Color::Black);
+    seqBox1.setOutlineColor(Color(180, 100, 220));
+    seqBox1.setOutlineThickness(3);
+    seqBox2.setOutlineColor(Color(180, 100, 220));
+    seqBox2.setOutlineThickness(3);
 
-    // sequences
-    drawText(window, font, "Act 1 - Level 2: Rebuild the Vault Map", 24, 40, 12,
-        sf::Color(255, 215, 90), false);
-    std::string s1 = "Inorder:      ";
-    std::string s2 = (level.getMode() == act1Level2::INPRE) ? "Preorder:     " : "Postorder:   ";
+    window.draw(seqBox1);
+    window.draw(seqBox2);
+
+    // Build sequence strings
+    string inStr = "INORDER: ";
+    string otherStr = (level.getMode() == act1Level2::INPRE) ? "PREORDER: " : "POSTORDER: ";
+
     for (int i = 0; i < n; i++)
     {
-        s1 += std::to_string(level.getInSeq(i)) + "   ";
-        s2 += std::to_string(level.getOtherSeq(i)) + "   ";
+        inStr += to_string(level.getInSeq(i)) + " ";
+        otherStr += to_string(level.getOtherSeq(i)) + " ";
     }
-    drawText(window, font, s1, 22, 40, 50, sf::Color::White, false);
-    drawText(window, font, s2, 22, 40, 80, sf::Color::White, false);
-    drawText(window, font, "Drag a room to move it (its subtree follows). Drag its L / R dot onto another room to make that room its left / right child.",
-        13, 40, 112, sf::Color(170, 175, 200), false);
 
-    // buttons
-    sf::Color navy(20, 30, 70);
-    bool hov = isMouseOver(window, 1040, 14, 200, 40);
-    drawRoundButton(window, 1040, 14, 200, 40, sf::Color(120, 220, 140), hov);
-    drawText(window, font, "Check", 1140, 34, 20, navy, true);
-    hov = isMouseOver(window, 1040, 62, 200, 40);
-    drawRoundButton(window, 1040, 62, 200, 40, sf::Color(130, 170, 240), hov);
-    drawText(window, font, "New Puzzle", 1140, 82, 20, navy, true);
+    drawText(window, font, inStr, 20, 65, 80, Color::White, false);
+    drawText(window, font, otherStr, 20, 825, 80, Color::White, false);
 
-    // links
-    sf::Color lineCol = won ? sf::Color(120, 230, 150) : sf::Color(170, 175, 205);
+    // INSTRUCTIONS
+    drawText(window, font, statusMsg, 18, 640, 140, Color::White, true);
+    drawText(window, font, "Click same room twice: Unlink | Space: Reset | Enter: Check | 1/2: Mode | R: New",
+        16, 640, 170, Color(208, 221, 183), true);
+
+    // DRAW LINES BETWEEN CONNECTED ROOMS (Same line style as Level 1)
     for (int i = 0; i < n; i++)
     {
-        for (int s = 0; s < 2; s++)
+        for (int side = 0; side < 2; side++)
         {
-            int c = level.getChild(i, s);
-            if (c == -1) continue;
-            float x, y;
-            portPos(i, s, x, y);
-            drawLine(window, x, y, px[c], py[c] - radius, 3, lineCol);
+            int childIdx = level.getChild(i, side);
+            if (childIdx == -1) continue;
+
+            Vector2f start(nodeX[i], nodeY[i]);
+            Vector2f end(nodeX[childIdx], nodeY[childIdx]);
+            Vector2f diff = end - start;
+
+            float length = sqrt(diff.x * diff.x + diff.y * diff.y);
+            RectangleShape line(Vector2f(length, 5));
+            line.setPosition(start);
+            line.setRotation(atan2(diff.y, diff.x) * 180.0f / 3.14159f);
+
+            // Yellow line for Left child, Cyan line for Right child
+            line.setFillColor(side == act1Level2::LEFT ? Color::Yellow : Color::Cyan);
+            window.draw(line);
+
+            // Draw "L" or "R" tag at the midpoint of the line
+            float midX = (start.x + end.x) / 2.0f;
+            float midY = (start.y + end.y) / 2.0f;
+            drawText(window, font, side == act1Level2::LEFT ? "L" : "R",
+                18, midX, midY - 12, Color::White, true);
         }
     }
 
-    // link being dragged
-    if (portFrom != -1)
-    {
-        float x, y;
-        portPos(portFrom, portSide, x, y);
-        drawLine(window, x, y, (float)mp.x, (float)mp.y, 2, sf::Color(255, 215, 90));
-    }
-
-    // rooms
+    // DRAW NODES (Same circle style as Level 1)
     for (int i = 0; i < n; i++)
     {
-        sf::CircleShape c(radius);
-        c.setOrigin(radius, radius);
-        c.setPosition(px[i], py[i]);
-        c.setOutlineThickness(3);
+        float radius = 30.0f;
+        CircleShape circle(radius);
+        circle.setOrigin(radius, radius);
+        circle.setPosition(nodeX[i], nodeY[i]);
+        circle.setFillColor(Color(73, 103, 164));
+        circle.setOutlineThickness(7);
 
-        sf::Color fill(70, 90, 140), outline(150, 170, 230);
-        if (won) { fill = sf::Color(40, 150, 80); outline = sf::Color(120, 230, 150); }
-        else if (i == drag) { fill = sf::Color(110, 130, 200); outline = sf::Color::White; }
-        c.setFillColor(fill);
-        c.setOutlineColor(outline);
-        window.draw(c);
+        if (level.getState() == act1Level2::WON)
+            circle.setOutlineColor(Color::Green);
+        else if (i == selectedNode)
+            circle.setOutlineColor(Color::Yellow);
+        else
+            circle.setOutlineColor(Color(208, 221, 183));
 
-        drawText(window, font, std::to_string(level.getVal(i)), 20, px[i], py[i] - 6,
-            sf::Color::White, true);
+        window.draw(circle);
 
-        // L / R ports
-        for (int s = 0; s < 2; s++)
-        {
-            float x, y;
-            portPos(i, s, x, y);
-            sf::CircleShape p(portR);
-            p.setOrigin(portR, portR);
-            p.setPosition(x, y);
-            bool used = (level.getChild(i, s) != -1);
-            if (s == 0) p.setFillColor(used ? sf::Color(255, 190, 70) : sf::Color(150, 110, 40));
-            else        p.setFillColor(used ? sf::Color(100, 215, 245) : sf::Color(50, 110, 130));
-            p.setOutlineThickness(1);
-            p.setOutlineColor(sf::Color::White);
-            window.draw(p);
-            drawText(window, font, s == 0 ? "L" : "R", 11, x, y - 2, sf::Color::Black, true);
-        }
+        drawText(window, font, to_string(level.getVal(i)),
+            26, nodeX[i], nodeY[i], Color::White, true);
     }
 
-    // banner / message
-    if (won)
+    // WIN MESSAGE
+    if (level.getState() == act1Level2::WON)
     {
-        std::string msg = "VAULT MAP RESTORED!  Stars: " + std::to_string(level.stars()) +
-            "/3   Score: " + std::to_string(level.score());
-        drawText(window, font, msg, 22, W / 2.0f, 555, sf::Color(255, 215, 90), true);
-        drawText(window, font, "N: new puzzle  |  Esc: menu", 14, W / 2.0f, 575,
-            sf::Color(170, 175, 200), true);
+        drawText(window, font, "VAULT MAP RESTORED! PRESS ENTER!",
+            28, 640, 660, Color::Green, true);
     }
-    else if (msgTime > 0)
-        drawText(window, font, message, 20, W / 2.0f, 555, sf::Color(255, 120, 120), true);
 
-    drawText(window, font, "Drag room: move | Drag L/R dot onto a room: link | Right click: cut link | Enter: check | Space: reset | 1/2: pre or post | N: new | Esc: menu",
-        13, W / 2.0f, H - 14.0f, sf::Color(150, 155, 180), true);
+    // RED SCREEN FLASH ON ERROR
+    if (flashTime > 0)
+    {
+        RectangleShape redScreen(Vector2f(1280, 720));
+        redScreen.setFillColor(Color(255, 0, 0, 90));
+        window.draw(redScreen);
+    }
 }
-
 
 
 Map::Map(RenderWindow& window) : Screen(window)

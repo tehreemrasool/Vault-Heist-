@@ -18,7 +18,7 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="act1Level1.h">
+    <ClCompile Include="act1.h">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="screen.cpp">
