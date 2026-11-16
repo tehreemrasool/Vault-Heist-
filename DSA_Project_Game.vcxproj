@@ -164,6 +164,7 @@ sfml-audio-d.lib</AdditionalDependencies>
     <ClCompile Include="screen.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="sideScreens.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header.h">

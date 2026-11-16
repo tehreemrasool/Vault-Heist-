@@ -1,5 +1,5 @@
 #include "screen.h"
-
+using namespace sf;
 using namespace std;
 
 // ---------------- shared helpers ----------------
@@ -9,8 +9,7 @@ bool loadFont(Font& f)
     return false;
 }
 
-void drawText(sf::RenderWindow& w, const sf::Font& f, const std::string& s, unsigned size,
-    float x, float y, sf::Color c, bool center)
+void drawText(RenderWindow& w, const Font& f, const string& s, unsigned size,float x, float y, Color c, bool center)
 {
     Text t(s, f, size);
     t.setFillColor(c);
@@ -20,13 +19,13 @@ void drawText(sf::RenderWindow& w, const sf::Font& f, const std::string& s, unsi
     w.draw(t);
 }
 
-bool isMouseOver(sf::RenderWindow& w, float x, float y, float width, float height)
+bool isMouseOver(RenderWindow& w, float x, float y, float width, float height)
 {
     Vector2i mp = sf::Mouse::getPosition(w);
     return mp.x >= x && mp.x <= x + width && mp.y >= y && mp.y <= y + height;
 }
 
-void drawRoundButton(sf::RenderWindow& w, float x, float y, float width, float height,Color c, bool hover)
+void drawRoundButton(RenderWindow& w, float x, float y, float width, float height,Color c, bool hover)
 {
     if (hover)
     {
@@ -34,7 +33,7 @@ void drawRoundButton(sf::RenderWindow& w, float x, float y, float width, float h
         c = Color((sf::Uint8)(r > 255 ? 255 : r), (Uint8)(g > 255 ? 255 : g),
             (Uint8)(b > 255 ? 255 : b));
     }
-    RectangleShape box(sf::Vector2f(width, height));
+    RectangleShape box(Vector2f(width, height));
     box.setPosition(x, y);
     box.setFillColor(c);
     box.setOutlineThickness(3.f);
@@ -85,7 +84,6 @@ static const char* typeName(int t)
     return "LEVEL ORDER (top to bottom, left to right)";
 }
 
-// Find the maximum depth of the tree
 int getMaxDepth(TreeNode* root)
 {
     if (root == NULL)
@@ -98,7 +96,6 @@ int getMaxDepth(TreeNode* root)
 }
 
 
-// Give every node an x and y position
 void setTreePositions(TreeNode* root, int depth, int& position,
     int total, int maxDepth)
 {
@@ -116,7 +113,6 @@ void setTreePositions(TreeNode* root, int depth, int& position,
 }
 
 
-// Draw lines connecting parent and child nodes
 void drawTreeLines(RenderWindow& window, TreeNode* root)
 {
     if (root == NULL)
@@ -191,7 +187,6 @@ void drawTreeNodes(RenderWindow& window, Font& font,
 }
 
 
-// Find which node the player clicked
 TreeNode* findClickedNode(TreeNode* root, float x, float y)
 {
     if (root == NULL)
@@ -217,7 +212,9 @@ MainMenuScreen::MainMenuScreen(RenderWindow& win) : Screen(win), button(35, 100)
 {
     font.loadFromFile("assets/fonts/SuperShiny.ttf");
     font2.loadFromFile("assets/fonts/MedievalSharp.ttf");
+    
     title.setFont(font);
+
     storyLine.setFont(font2);
     storyLine.setString("Legends speak of an ancient vault hidden beneath a forgotten kingdom.\nIt holds treasures beyond imagination,\nguarded by puzzles no one has ever solved.\nCan you find it ? ");
     storyLine.setFillColor(Color(212, 110, 194));
@@ -225,6 +222,8 @@ MainMenuScreen::MainMenuScreen(RenderWindow& win) : Screen(win), button(35, 100)
     storyLine.setPosition(300, 250);
     storyLine.setOutlineColor(Color::Black);
     storyLine.setOutlineThickness(3);
+
+
     title.setString("Vault heist");
     title.setCharacterSize(100);
     title.setFillColor(Color::White);
@@ -232,17 +231,26 @@ MainMenuScreen::MainMenuScreen(RenderWindow& win) : Screen(win), button(35, 100)
     title.setOutlineThickness(1);
     title.setPosition(400, 100);
 
-    button.setPosition(500, 500);
-    button.setScale(3.5f, 1.0f);
+    button.setPosition(500, 350);
+    button.setScale(3.0f, 1.0f);
     button.setFillColor(Color(212, 110, 194, 120));
+    instructionButton.setFillColor(Color(212, 110, 194, 120));
+    instructionButton.setScale(3.0f, 1.0f);
+    instructionButton.setPosition(500, 400);
+
+
+    buttontext2.setFont(font);
+    buttontext2.setFillColor(Color::Black);
+    buttontext2.setCharacterSize(25);
+    buttontext2.setPosition(550, 450);
+    buttontext2.setString("Instructions");
 
     buttonText.setFont(font);
     buttonText.setString("START GAME");
     buttonText.setCharacterSize(25);
     buttonText.setFillColor(Color::Black);
-    buttonText.setPosition(570, 520);
+    buttonText.setPosition(550, 363);
 
-    //backgroundTexture.loadFromFile("assets/pictures/disneyland.jpg");
     backgroundTexture.loadFromFile("assets/pictures/Hmain.jfif");
     background.setTexture(backgroundTexture);
     background.setScale(1280.0f / backgroundTexture.getSize().x,
@@ -252,7 +260,8 @@ MainMenuScreen::MainMenuScreen(RenderWindow& win) : Screen(win), button(35, 100)
 void MainMenuScreen::onEnter()
 {
     isActive = true;
-    nextScreen = 1;     // stay on the menu until the button is clicked
+    nextScreen = 1;     
+    levelNumber = 0;
 }
 
 void MainMenuScreen::handleInput()
@@ -265,7 +274,8 @@ void MainMenuScreen::handleInput()
         if (e.type == Event::MouseButtonPressed && e.mouseButton.button == Mouse::Left)
         {
             if (button.getGlobalBounds().contains((float)e.mouseButton.x, (float)e.mouseButton.y))
-                nextScreen = 24;     // start Act 1 Level 1
+                nextScreen = 24;     //show map
+            levelNumber = 1;
         }
     }
 }
@@ -280,6 +290,8 @@ void MainMenuScreen::draw()
     window.draw(title);
     window.draw(button);
     window.draw(buttonText);
+    window.draw(instructionButton);
+    window.draw(buttontext2);
 }
 
 
@@ -290,8 +302,7 @@ Level1Screen::Level1Screen(RenderWindow& win) : Screen(win)
 {
     loadFont(font);
 
-    //if (backgroundTexture.loadFromFile("assets/pictures/bg1.jfif"))
-    if (backgroundTexture.loadFromFile("assets/pictures/bg4.jfif"))
+    if (backgroundTexture.loadFromFile("assets/pictures/act1lvl1.jfif"))
     {
         background.setTexture(backgroundTexture);
 
@@ -337,11 +348,11 @@ void Level1Screen::newTree()
 }
 
 
-// Called when Level 1 opens
 void Level1Screen::onEnter()
 {
     isActive = true;
     nextScreen = 2;
+    
 
     flashTime = 0;
 
@@ -360,7 +371,6 @@ void Level1Screen::handleInput()
             nextScreen = 99;
 
 
-        // MOUSE CLICK
         if (e.type == Event::MouseButtonPressed &&
             e.mouseButton.button == Mouse::Left)
         {
@@ -379,15 +389,19 @@ void Level1Screen::handleInput()
         }
 
 
-        // KEYBOARD
         if (e.type == Event::KeyPressed)
         {
             if (e.key.code == Keyboard::Escape)
-                nextScreen = 1;
+                nextScreen = 25;
 
             else if (e.key.code == Keyboard::Return &&
                 level.getState() == act1Level1::WON)
+            {
                 nextScreen = 3;
+                levelNumber = 2;
+
+            }
+                
 
             else if (e.key.code == Keyboard::R)
                 newTree();
@@ -423,7 +437,6 @@ void Level1Screen::handleInput()
 }
 
 
-// Update flash timer
 void Level1Screen::update(float dt)
 {
     if (flashTime > 0)
@@ -431,20 +444,12 @@ void Level1Screen::update(float dt)
 }
 
 
-// Draw Level 1
 void Level1Screen::draw()
 {
     window.clear();
-
-    // BACKGROUND
     window.draw(background);
-
-
-    // TITLE
     drawText(window, font, "ACT 1 - LEVEL 1",40, 500, 15, Color::White, false);
 
-
-    // ALARM
     RectangleShape alarmBox(Vector2f(200, 50));
     RectangleShape orderBox(Vector2f(420, 50));
 
@@ -464,25 +469,18 @@ void Level1Screen::draw()
         18, 70, 80, Color(255, 255, 255), false);
 
 
-    // TRAVERSAL ORDER
     drawText(window, font, typeName(level.getType()),
         22, 885, 75, Color::White, false);
 
-
-    // INSTRUCTIONS
     drawText(window, font, "Which room will the guard visit next?",
         20,600 , 100, Color::White, true);
 
-
-    // TREE LINES
     drawTreeLines(window, root);
 
 
-    // TREE NODES
     drawTreeNodes(window, font, root, level);
 
 
-    // GAME STATUS
     if (level.getState() == act1Level1::WON)
     {
         drawText(window, font, "VAULT CLEARED!",30, 640, 670, Color::Green, true);
@@ -494,11 +492,7 @@ void Level1Screen::draw()
             27, 640, 670, Color::Red, true);
     }
 
-    
-
-
-    // RED SCREEN FLASH AFTER WRONG CLICK
-    if (flashTime > 0)
+        if (flashTime > 0)
     {
         RectangleShape redScreen(Vector2f(1280, 720));
 
@@ -507,6 +501,14 @@ void Level1Screen::draw()
         window.draw(redScreen);
     }
 }
+
+void Level1Screen::onResume()
+{
+    isActive = true;
+    nextScreen = 2;     
+    flashTime = 0;
+}
+
 
 
 // ---------------- Level2Screen ----------------
@@ -536,18 +538,16 @@ Level2Screen::Level2Screen(RenderWindow& win) : Screen(win)
     }
 }
 
-// Generate a new puzzle and arrange nodes in two simple rows
 void Level2Screen::newPuzzle()
 {
     srand(seed++);
-    int count = 5 + rand() % 4; // 5 to 8 rooms
+    int count = 5 + rand() % 4; 
     level.start(curMode, count);
 
     selectedNode = -1;
     flashTime = 0;
     statusMsg = "Click a parent room, then Left-Click (Left Child) or Right-Click (Right Child)";
 
-    // Arrange nodes cleanly in a grid so there is no dragging needed
     int cols = 4;
     for (int i = 0; i < count; i++)
     {
@@ -574,13 +574,11 @@ void Level2Screen::handleInput()
         if (e.type == Event::Closed)
             nextScreen = 99;
 
-        // MOUSE CLICK
         if (e.type == Event::MouseButtonPressed)
         {
             float mx = (float)e.mouseButton.x;
             float my = (float)e.mouseButton.y;
 
-            // Check if player clicked inside any node circle (radius = 30)
             int clicked = -1;
             for (int i = 0; i < level.getN(); i++)
             {
@@ -595,18 +593,15 @@ void Level2Screen::handleInput()
 
             if (clicked != -1)
             {
-                // First click selects the parent node
                 if (selectedNode == -1)
                 {
                     selectedNode = clicked;
                 }
-                // Clicking the same node again deselects it and cuts its parent link
                 else if (selectedNode == clicked)
                 {
                     level.detach(clicked);
                     selectedNode = -1;
                 }
-                // Second click connects 'clicked' as Left or Right child of 'selectedNode'
                 else
                 {
                     int side = (e.mouseButton.button == Mouse::Left)
@@ -623,16 +618,14 @@ void Level2Screen::handleInput()
             }
             else
             {
-                // Clicking empty space cancels selection
                 selectedNode = -1;
             }
         }
 
-        // KEYBOARD (Matches Level 1 controls)
         if (e.type == Event::KeyPressed)
         {
             if (e.key.code == Keyboard::Escape)
-                nextScreen = 1;
+                nextScreen = 25;
 
             else if (e.key.code == Keyboard::R)
                 newPuzzle();
@@ -659,7 +652,7 @@ void Level2Screen::handleInput()
             {
                 if (level.getState() == act1Level2::WON)
                 {
-                    nextScreen = 1; // or next level screen ID
+                    nextScreen = 1; 
                 }
                 else if (level.linkCount() < level.getN() - 1)
                 {
@@ -689,10 +682,8 @@ void Level2Screen::draw()
 
     int n = level.getN();
 
-    // TITLE
     drawText(window, font, "ACT 1 - LEVEL 2", 40, 500, 15, Color::White, false);
 
-    // TOP BOXES (Same style as Level 1)
     RectangleShape seqBox1(Vector2f(420, 45));
     RectangleShape seqBox2(Vector2f(420, 45));
 
@@ -708,7 +699,6 @@ void Level2Screen::draw()
     window.draw(seqBox1);
     window.draw(seqBox2);
 
-    // Build sequence strings
     string inStr = "INORDER: ";
     string otherStr = (level.getMode() == act1Level2::INPRE) ? "PREORDER: " : "POSTORDER: ";
 
@@ -721,12 +711,10 @@ void Level2Screen::draw()
     drawText(window, font, inStr, 20, 65, 80, Color::White, false);
     drawText(window, font, otherStr, 20, 825, 80, Color::White, false);
 
-    // INSTRUCTIONS
     drawText(window, font, statusMsg, 18, 640, 140, Color::White, true);
     drawText(window, font, "Click same room twice: Unlink | Space: Reset | Enter: Check | 1/2: Mode | R: New",
         16, 640, 170, Color(208, 221, 183), true);
 
-    // DRAW LINES BETWEEN CONNECTED ROOMS (Same line style as Level 1)
     for (int i = 0; i < n; i++)
     {
         for (int side = 0; side < 2; side++)
@@ -743,11 +731,9 @@ void Level2Screen::draw()
             line.setPosition(start);
             line.setRotation(atan2(diff.y, diff.x) * 180.0f / 3.14159f);
 
-            // Yellow line for Left child, Cyan line for Right child
             line.setFillColor(side == act1Level2::LEFT ? Color::Yellow : Color::Cyan);
             window.draw(line);
 
-            // Draw "L" or "R" tag at the midpoint of the line
             float midX = (start.x + end.x) / 2.0f;
             float midY = (start.y + end.y) / 2.0f;
             drawText(window, font, side == act1Level2::LEFT ? "L" : "R",
@@ -755,7 +741,6 @@ void Level2Screen::draw()
         }
     }
 
-    // DRAW NODES (Same circle style as Level 1)
     for (int i = 0; i < n; i++)
     {
         float radius = 30.0f;
@@ -766,9 +751,9 @@ void Level2Screen::draw()
         circle.setOutlineThickness(7);
 
         if (level.getState() == act1Level2::WON)
-            circle.setOutlineColor(Color::Green);
+            circle.setOutlineColor(Color(212, 110, 194));
         else if (i == selectedNode)
-            circle.setOutlineColor(Color::Yellow);
+            circle.setOutlineColor(Color(212, 110, 194));
         else
             circle.setOutlineColor(Color(208, 221, 183));
 
@@ -778,14 +763,12 @@ void Level2Screen::draw()
             26, nodeX[i], nodeY[i], Color::White, true);
     }
 
-    // WIN MESSAGE
     if (level.getState() == act1Level2::WON)
     {
         drawText(window, font, "VAULT MAP RESTORED! PRESS ENTER!",
             28, 640, 660, Color::Green, true);
     }
 
-    // RED SCREEN FLASH ON ERROR
     if (flashTime > 0)
     {
         RectangleShape redScreen(Vector2f(1280, 720));
@@ -794,44 +777,23 @@ void Level2Screen::draw()
     }
 }
 
-
-Map::Map(RenderWindow& window) : Screen(window)
-{
-    font.loadFromFile("assets/fonts/SuperShiny.ttf");
-    if (backgroundTexture.loadFromFile("assets/pictures/map.png"))
-    {
-        background.setTexture(backgroundTexture);
-        background.setScale(1280.0f / backgroundTexture.getSize().x, 720.0f / backgroundTexture.getSize().y
-        );
-    }
-
-    nextScreen = 24;
-
-}
-
-void Map::onEnter()
+void Level2Screen::onResume()
 {
     isActive = true;
-    nextScreen = 24;     
+    nextScreen = 3;      
+    flashTime = 0;
 }
 
-void Map::handleInput()
-{
-    Event e;
-    while (window.pollEvent(e))
-    {
-        if (e.type == Event::Closed) nextScreen = 99;
 
-        if (e.type == Event::MouseButtonPressed && e.mouseButton.button == Mouse::Left)
-        {
-                nextScreen = 2;     // start Act 1 Level 1
-        }
-    }
-}
-void Map::update(float time) {}
+//--------------------------------level 3----------------------------------------------
 
-void Map::draw()
-{
-    window.clear();
-    window.draw(background);
-}
+//Level3Screen::Level3Screen(RenderWindow& win) : Screen (window)
+//{
+//    font.loadFromFile("assets/fonts/ARIAL.ttf");
+//    backgroundTexture.loadFromFile("assets/pictures/pic2.jfif");
+//    nextScreen = 4;
+//
+//
+//}
+
+

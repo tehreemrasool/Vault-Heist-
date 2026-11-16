@@ -370,11 +370,9 @@ public:
 		size = 0;
 	}
 
-	void insert(int n)
+
+	void shiftUp(int i)
 	{
-		heap[size] = n;
-		size++;
-		int i = size-1;
 		while (i > 0)
 		{
 			int parent = (i - 1) / 2;
@@ -389,37 +387,127 @@ public:
 			else break;
 
 		}
+
+	}
+
+	void insert(int n)
+	{
+		heap[size] = n;
+		size++;
+		int i = size-1;
+		shiftUp(i);
+		
+	}
+	void shiftDown(int i)
+	{
+
+		while (true)
+		{
+			int max = i;
+			int left = 2 * i + 1;
+			int right = 2 * i + 2;
+			if (left<size && heap[left]>heap[max])
+			{
+				max = left;
+			}
+			if (right<size && heap[right]>heap[max])
+			{
+				max = right;
+			}
+			if (max == i) break;
+
+			int temp = heap[max];
+			heap[max] = heap[i];
+			heap[i] = temp;
+			i = max;
+
+
+		}
+
+	}
+
+	void extractMax()
+	{
+		heap[0] = heap[size - 1];
+		int i = size - 1;
+		shiftDown(i);
+
 	}
 
 	
 };
 
-void siftDown(int i, int heapSize, int heap[])
+inline void shiftDown(int i, int size, int heap[])
 {
-	int max = i;
+	
 	while (true)
 	{
+		int max = i;
 		int left = 2 * i + 1;
 		int right = 2 * i + 2;
-		if (heap[i] < heap[left])
+		if (left<size && heap[left]>heap[max])
 		{
-			int temp = heap[i];
-			heap[i] = heap[left];
-			heap[left] = temp;
+			max = left;
 		}
-		if (heap[i] < heap[right])
+		if (right<size && heap[right]>heap[max])
 		{
-			int temp = heap[i];
-			heap[i] = heap[right];
-			heap[right] = temp;
+			max = right;
 		}
+		if (max == i) break;
+
+		int temp = heap[max];
+		heap[max] = heap[i];
+		heap[i] = temp;
+		i = max;
+
 
 	}
 
 }
 
 
-maxHeap buildMaxHeap(int arr[],int s)
+
+inline void heapSort(int arr[], int s)
+{
+	for (int i = s / 2 - 1; i >= 0; i--)
+	{
+		shiftDown(i, s, arr);
+	}
+
+	while (s > 1)
+	{
+		int temp = arr[0];
+		arr[0] = arr[s - 1];
+		arr[s - 1] = temp;
+
+		s--;
+
+		shiftDown(0, s, arr);
+	}
+}
+
+inline bool isMaxHeap(int arr[], int s)
+{
+	int i = 0;
+	while (i < s)
+	{
+		int left = 2 * i + 1;
+		int right = 2 * i + 2;
+		if (left < s)
+		{
+			if (arr[i] < arr[left]) return false;
+		}
+		if (right < s)
+		{
+			if (arr[i] < arr[right])return false;
+		}
+		i++;
+	}
+	return true;
+}
+
+
+inline maxHeap buildMaxHeap(int arr[],int s)
 {
 	maxHeap heap(s);
 	for (int i = 0; i < s; i++)

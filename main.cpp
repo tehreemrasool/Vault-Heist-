@@ -39,11 +39,13 @@ int main()
     Level1Screen level(window);
     Level2Screen level2(window);
     Map map_ (window);
+    blackScreen bl(window);
 
 
     // START WITH MAIN MENU
     Screen* current = &menu;
     int currentId = 1;
+    int pausedId = 0;
 
     current->onEnter();
 
@@ -69,6 +71,16 @@ int main()
             window.close();
             break;
         }
+        if (next == 25 && currentId >= 2 && currentId <= 17)
+        {
+            bl.setTarget(currentId);   // clicking will come back to this level
+            pausedId = currentId;
+        }
+        if (next != currentId && next >= 2 && next <= 17 && currentId != 25)
+        {
+            bl.setTarget(next);   // remember which level to open afterwards
+            next = 25;               // show the black screen instead
+        }
 
 
         // CHANGE SCREEN
@@ -93,11 +105,23 @@ int main()
             {
                 current = &map_;
             }
+            else if (next == 25)
+            {
+                current = &bl;
+            }
             
 
             currentId = next;
 
-            current->onEnter();
+            if (next == pausedId)
+            {
+                current->onResume();   // returning from pause: keep progress
+                pausedId = 0;
+            }
+            else
+            {
+                current->onEnter();    // fresh entry: new puzzle
+            }
         }
 
 
