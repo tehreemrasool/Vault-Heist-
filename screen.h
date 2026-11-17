@@ -11,11 +11,10 @@
 using namespace sf;
 using namespace std;
 
-// shared helpers (defined in screen.cpp)
-bool loadFont(Font& f);
+//bool loadFont(Font& f);
 void drawText(RenderWindow& w, const Font& f, const string& s, unsigned size,float x, float y, Color c, bool center);
 bool isMouseOver(RenderWindow& w, float x, float y, float width, float height);
-void drawRoundButton(RenderWindow& w, float x, float y, float width, float height,Color c, bool hover);
+//void drawRoundButton(RenderWindow& w, float x, float y, float width, float height,Color c, bool hover);
 
 class Screen {
 protected:
@@ -43,7 +42,6 @@ class MainMenuScreen : public Screen {
     Font font2;
     Text title;
     Text buttontext2;;
-    //int level;
     Text storyLine;
     Text buttonText;
 
@@ -120,38 +118,45 @@ public:
     int getNextScreen() const override { return nextScreen; }
     void onEnter() override;
 };
-//screen id 4
-//class Level3Screen : public Screen {
-//
-//    Font font;
-//    Texture backgroundTexture;
-//    Sprite background;
-//    int nextScreen;
-//
-//    // game state
-//    act1Level2 level;
-//    float nodeX[15];
-//    float nodeY[15];
-//    int selectedNode;
-//    int curMode;
-//    unsigned seed;
-//    float flashTime;
-//    string statusMsg;
-//
-//    void newPuzzle();
-//
-//public:
-//    Level3Screen(RenderWindow& win);
-//    void draw() override;
-//    void onResume() override;
-//    void handleInput() override;
-//    void update(float time) override;
-//    int getNextScreen() const override { return nextScreen; }
-//    void onEnter() override;
-//};
-//
-////screen id 24
-//
+
+// screen id 4
+class Level3Screen : public Screen {
+
+    Font font;
+    Texture backgroundTexture;
+    Sprite background;
+    int nextScreen;
+
+    // game state
+    TreeNode* root;
+    int count;
+    act1Level3 level;
+    unsigned seed;
+
+    float timeLeft;        
+    float flashTime;       
+    float messageTime;     
+    float animTime;        
+    string input;          
+    string message;        
+    Color messageColor;
+
+    void newTree();
+    void submitAnswer();
+
+public:
+    Level3Screen(RenderWindow& win);
+    ~Level3Screen();
+    void draw() override;
+    void onResume() override;
+    void handleInput() override;
+    void update(float time) override;
+    int getNextScreen() const override { return nextScreen; }
+    void onEnter() override;
+    //bool isFinished() const override { return level.getState() == act1Level3::WON; }
+};
+
+//screen id 24
 class Map : public ::Screen
 {
     Font font;
@@ -170,10 +175,83 @@ public:
 };
 
 //
+
+
+
+// screen id 5
+class Level4Screen : public Screen {
+
+    Font font;
+    Texture backgroundTexture;
+    Sprite background;
+    int nextScreen;
+
+    // game state
+    TreeNode* root;
+    int count;
+    act1Level4 level;
+    unsigned seed;
+
+    int selectedLcaId;
+    int selectedLcaVal;
+    string pathInput;
+    int activeBox;          
+    float flashTime;
+    float messageTime;
+    float animTime;
+    string message;
+    Color messageColor;
+
+    void newTree();
+    void submitAnswer();
+
+public:
+    Level4Screen(RenderWindow& win);
+    ~Level4Screen();
+    void draw() override;
+    void onResume() override;
+    void handleInput() override;
+    void update(float time) override;
+    int getNextScreen() const override { return nextScreen; }
+    void onEnter() override;
+};
+
+// screen id 6
+class Level5Screen : public Screen {
+
+    Font font;
+    Texture backgroundTexture;
+    Sprite background;
+    int nextScreen;
+
+    // game state
+    act1Level5 level;
+    int count;
+    unsigned seed;
+
+    int lastSwappedId;
+    float flashTime;
+    float messageTime;
+    string message;
+    Color messageColor;
+
+    void newTree();
+    void refreshLayout();
+
+public:
+    Level5Screen(RenderWindow& win);
+    void draw() override;
+    void onResume() override;
+    void handleInput() override;
+    void update(float time) override;
+    int getNextScreen() const override { return nextScreen; }
+    void onEnter() override;
+};
+
 //screen id 25
 class blackScreen :public::Screen {
     Font font;
-    Text msg;    
+    Text msg;
     Texture backgroundTexture;
     Sprite background;
     int nextScreen;
@@ -188,5 +266,30 @@ public:
     int getNextScreen() const override { return nextScreen; }
     void onEnter() override;
     void handleInput() override;
+
+};
+
+// screen id 21
+
+class instructionWindow  :public Screen
+{
+    Font font;
+    Text instructions;
+    Texture backgroundTexture;
+    Sprite background;
+    RectangleShape square;
+    int nextScreen;
+    int targetScreen;
+
+public:
+    instructionWindow(RenderWindow& window);
+    void draw() override;
+    void update(float time) override;
+    int getNextScreen() const override { return nextScreen; }
+    void onEnter() override;
+    void handleInput() override;
+
+    
+    
 
 };

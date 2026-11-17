@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdlib>
 #include "header.h"
+#include <cmath>
 #include <ctime>
 #include <iostream>
 using namespace std;
@@ -20,18 +21,15 @@ private:
 	int visitOrder[101] = { 0 };
 
 public:
-	// traversal types
 	static const int PREORDER = 0;
 	static const int INORDER = 1;
 	static const int POSTORDER = 2;
 	static const int LEVELORDER = 3;
 
-	// level states
 	static const int PLAYING = 0;
 	static const int WON = 1;
 	static const int LOST = 2;
 
-	// click results
 	static const int IGNORED = 0;
 	static const int CORRECT = 1;
 	static const int WRONG = 2;
@@ -116,16 +114,10 @@ class act1Level2
 {
 public:
 	static const int MAXN = 15;
-
-	// modes
-	static const int INPRE = 0;    // inorder + preorder
-	static const int INPOST = 1;   // inorder + postorder
-
-	// states
+	static const int INPRE = 0;   
+	static const int INPOST = 1;  
 	static const int PLAYING = 0;
 	static const int WON = 1;
-
-	// child sides
 	static const int LEFT = 0;
 	static const int RIGHT = 1;
 
@@ -134,9 +126,9 @@ private:
 	int mode;
 	int inSeq[MAXN];
 	int otherSeq[MAXN];
-	int val[MAXN];          // value of piece i (shuffled order)
-	int child[MAXN][2];     // piece index of left/right child, -1 = none
-	int par[MAXN];          // piece index of parent, -1 = none
+	int val[MAXN];          
+	int child[MAXN][2];     
+	int par[MAXN];          
 	TreeNode* answer;
 	int state;
 	int checks;
@@ -199,8 +191,6 @@ public:
 
 		if (mode == INPRE) answer = buildPre(otherSeq, inSeq, n);
 		else               answer = buildPost(otherSeq, inSeq, n);
-
-		// pieces in shuffled order
 		for (int i = 0; i < n; i++) val[i] = inSeq[i];
 		for (int i = n - 1; i > 0; i--)
 		{
@@ -227,8 +217,6 @@ public:
 			par[i] = -1;
 		}
 	}
-
-	// cut piece c from its parent
 	void detach(int c)
 	{
 		if (state != PLAYING) return;
@@ -240,19 +228,17 @@ public:
 		par[c] = -1;
 	}
 
-	// make c the left/right child of p. returns false if not allowed
 	bool connect(int p, int side, int c)
 	{
 		if (state != PLAYING) return false;
 		if (p < 0 || p >= n || c < 0 || c >= n || p == c) return false;
 		if (side != LEFT && side != RIGHT) return false;
 
-		// c must not be an ancestor of p (would make a cycle)
 		for (int a = p; a != -1; a = par[a])
 			if (a == c) return false;
 
-		detach(c);                         // c leaves its old parent
-		if (child[p][side] != -1)          // slot taken: old child is cut loose
+		detach(c);                        
+		if (child[p][side] != -1)         
 			detach(child[p][side]);
 
 		child[p][side] = c;
@@ -302,6 +288,489 @@ public:
 	{
 		if (state != WON) return 0;
 		int s = 1000 - 150 * wrongChecks;
+		return s < 0 ? 0 : s;
+	}
+};
+
+class act1Level3
+{
+public:
+	static const int PLAYING = 0;
+	static const int WON = 1;
+	static const int LOST = 2;
+	static const int IGNORED = 0;
+	static const int CORRECT = 1;
+	static const int WRONG = 2;
+	static const int TIMEOUT = 3;
+
+private:
+	TreeNode* byId[101];    
+	bool solved[101];       
+	int order[101];         
+	int n;
+	int next;              
+	int alarm;
+	int penalties;           
+	int timeouts;
+	int capacity;
+	int state;
+
+	void collect(TreeNode* t)
+	{
+		if (t == NULL) return;
+		if (t->id >= 0 && t->id < 101)
+		{
+			byId[t->id] = t;
+			n++;
+		}
+		collect(t->left);
+		collect(t->right);
+	}
+	void buildOrder()
+	{
+		bool placed[101];
+		for (int i = 0; i < 101; i++) placed[i] = false;
+
+		for (int step = 0; step < n; step++)
+		{
+			int ready[101];
+			int r = 0;
+
+			for (int id = 0; id < 101; id++)
+			{
+				TreeNode* t = byId[id];
+				if (t == NULL || placed[id]) continue;
+
+				bool leftOk = (t->left == NULL) || placed[t->left->id];
+				bool rightOk = (t->right == NULL) || placed[t->right->id];
+
+				if (leftOk && rightOk) ready[r++] = id;
+			}
+
+			if (r == 0) { n = step; break; }   
+
+			int pick = ready[rand() % r];
+			placed[pick] = true;
+			order[step] = pick;
+		}
+	}
+
+	void updateState()
+	{
+		if (next == n) state = WON;
+		else if (alarm >= capacity) state = LOST;
+	}
+
+public:
+	act1Level3()
+	{
+		n = 0; next = 0; alarm = 0; penalties = 0; timeouts = 0; capacity = 0;
+		state = LOST;
+		for (int i = 0; i < 101; i++)
+		{
+			byId[i] = NULL;
+			solved[i] = false;
+			order[i] = -1;
+		}
+	}
+	act1Level3(const act1Level3&) = delete;
+	act1Level3& operator=(const act1Level3&) = delete;
+
+	void start(TreeNode* root)
+	{
+		n = 0; next = 0; alarm = 0; penalties = 0; timeouts = 0;
+		for (int i = 0; i < 101; i++)
+		{
+			byId[i] = NULL;
+			solved[i] = false;
+			order[i] = -1;
+		}
+
+		collect(root);
+		buildOrder();
+
+		capacity = (3 * n + 1) / 2 + 2;   
+		state = (n > 0) ? PLAYING : LOST;
+	}
+
+	int submit(int guess)
+	{
+		if (state != PLAYING) return IGNORED;
+
+		alarm++;
+		int r;
+
+		if (guess == getCurrentHeight())
+		{
+			solved[order[next]] = true;
+			next++;
+			r = CORRECT;
+		}
+		else
+		{
+			penalties++;
+			r = WRONG;
+		}
+
+		updateState();
+		return r;
+	}
+
+	int timeUp()
+	{
+		if (state != PLAYING) return IGNORED;
+
+		alarm++;
+		penalties++;
+		timeouts++;
+
+		updateState();
+		return TIMEOUT;
+	}
+
+	int getN() const { return n; }
+	int getSolved() const { return next; }
+	int getAlarm() const { return alarm; }
+	int getPenalties() const { return penalties; }
+	int getTimeouts() const { return timeouts; }
+	int getCapacity() const { return capacity; }
+	int getState() const { return state; }
+	int getCurrentId() const { return (next < n) ? order[next] : -1; }
+
+	int getCurrentHeight() const
+	{
+		if (next >= n) return 0;
+		return findHeight(byId[order[next]]);
+	}
+
+	bool isSolved(int id) const { return id >= 0 && id < 101 && solved[id]; }
+
+	int stars() const
+	{
+		if (state != WON) return 0;
+		if (alarm <= n && penalties == 0) return 3;
+		if (alarm * 4 <= 5 * n && penalties <= 1) return 2;
+		return 1;
+	}
+	int score() const
+	{
+		if (state != WON) return 0;
+		int s = 1000 - 10 * alarm;
+		return s < 0 ? 0 : s;
+	}
+};
+
+
+//          level 4
+
+class act1Level4
+{
+public:
+	static const int PLAYING = 0;
+	static const int WON = 1;
+	static const int LOST = 2;
+
+	static const int IGNORED = 0;
+	static const int CORRECT = 1;
+	static const int WRONG = 2;
+
+private:
+	TreeNode* nodes[101];
+	int n;
+	int totalRounds;
+	int currentRound;
+	int nodeAIdx;
+	int nodeBIdx;
+	int alarm;
+	int penalties;
+	int capacity;
+	int state;
+
+	void collect(TreeNode* t)
+	{
+		if (t == NULL || n >= 101) return;
+		nodes[n++] = t;
+		collect(t->left);
+		collect(t->right);
+	}
+
+	void pickPair()
+	{
+		if (n < 2)
+		{
+			nodeAIdx = 0;
+			nodeBIdx = 0;
+			return;
+		}
+		nodeAIdx = rand() % n;
+		do
+		{
+			nodeBIdx = rand() % n;
+		} while (nodeBIdx == nodeAIdx);
+	}
+
+	// Aligns depths first so header.h's findLCA() receives equal-depth nodes
+	TreeNode* computeLCA(TreeNode* one, TreeNode* two) const
+	{
+		int d1 = depth(one);
+		int d2 = depth(two);
+		while (d1 > d2) { one = one->parent; d1--; }
+		while (d2 > d1) { two = two->parent; d2--; }
+		return findLCA(one, two);
+	}
+
+	int computePathLength(TreeNode* one, TreeNode* two) const
+	{
+		TreeNode* lca = computeLCA(one, two);
+		if (lca == NULL) return 0;
+		return depth(one) + depth(two) - 2 * depth(lca);
+	}
+
+public:
+	act1Level4()
+	{
+		n = 0; totalRounds = 3; currentRound = 0;
+		nodeAIdx = -1; nodeBIdx = -1;
+		alarm = 0; penalties = 0; capacity = 0;
+		state = LOST;
+		for (int i = 0; i < 101; i++) nodes[i] = NULL;
+	}
+	act1Level4(const act1Level4&) = delete;
+	act1Level4& operator=(const act1Level4&) = delete;
+
+	void start(TreeNode* root, int rounds = 3)
+	{
+		n = 0;
+		for (int i = 0; i < 101; i++) nodes[i] = NULL;
+		collect(root);
+
+		totalRounds = rounds;
+		currentRound = 0;
+		alarm = 0;
+		penalties = 0;
+		capacity = (3 * totalRounds + 1) / 2 + 2;
+
+		if (n >= 2)
+		{
+			state = PLAYING;
+			pickPair();
+		}
+		else
+		{
+			state = LOST;
+		}
+	}
+
+	int submit(int selectedLcaId, int guessedPathLen)
+	{
+		if (state != PLAYING) return IGNORED;
+
+		alarm++;
+		TreeNode* a = nodes[nodeAIdx];
+		TreeNode* b = nodes[nodeBIdx];
+		TreeNode* actualLca = computeLCA(a, b);
+		int actualLen = computePathLength(a, b);
+
+		int r;
+		if (actualLca != NULL && selectedLcaId == actualLca->id && guessedPathLen == actualLen)
+		{
+			currentRound++;
+			r = CORRECT;
+			if (currentRound >= totalRounds)
+				state = WON;
+			else
+				pickPair();
+		}
+		else
+		{
+			penalties++;
+			r = WRONG;
+			if (alarm >= capacity)
+				state = LOST;
+		}
+
+		return r;
+	}
+
+	int getN() const { return n; }
+	int getTotalRounds() const { return totalRounds; }
+	int getCurrentRound() const { return currentRound; }
+	int getAlarm() const { return alarm; }
+	int getPenalties() const { return penalties; }
+	int getCapacity() const { return capacity; }
+	int getState() const { return state; }
+
+	TreeNode* getNodeA() const { return (nodeAIdx >= 0 && nodeAIdx < n) ? nodes[nodeAIdx] : NULL; }
+	TreeNode* getNodeB() const { return (nodeBIdx >= 0 && nodeBIdx < n) ? nodes[nodeBIdx] : NULL; }
+
+	int stars() const
+	{
+		if (state != WON) return 0;
+		if (alarm <= totalRounds && penalties == 0) return 3;
+		if (alarm * 4 <= 5 * totalRounds && penalties <= 1) return 2;
+		return 1;
+	}
+	int score() const
+	{
+		if (state != WON) return 0;
+		int s = 1000 - 10 * alarm;
+		return s < 0 ? 0 : s;
+	}
+};
+
+
+//          level 5
+
+class act1Level5
+{
+public:
+	static const int PLAYING = 0;
+	static const int WON = 1;
+	static const int LOST = 2;
+
+private:
+	TreeNode* original;
+	TreeNode* working;
+	TreeNode* target;
+	int n;
+	int swaps;
+	int alarm;
+	int penalties;
+	int capacity;
+	int state;
+
+	TreeNode* copyTree(TreeNode* root, TreeNode* parent = NULL)
+	{
+		if (root == NULL) return NULL;
+		TreeNode* copy = new TreeNode;
+		copy->id = root->id;
+		copy->value = root->value;
+		copy->x = root->x;
+		copy->y = root->y;
+		copy->parent = parent;
+		copy->left = copyTree(root->left, copy);
+		copy->right = copyTree(root->right, copy);
+		return copy;
+	}
+
+	bool treesMatch(TreeNode* a, TreeNode* b) const
+	{
+		if (a == NULL && b == NULL) return true;
+		if (a == NULL || b == NULL) return false;
+		if (a->value != b->value) return false;
+		return treesMatch(a->left, b->left) && treesMatch(a->right, b->right);
+	}
+
+	int countNodes(TreeNode* t) const
+	{
+		if (t == NULL) return 0;
+		return 1 + countNodes(t->left) + countNodes(t->right);
+	}
+
+	TreeNode* findById(TreeNode* t, int id)
+	{
+		if (t == NULL) return NULL;
+		if (t->id == id) return t;
+		TreeNode* l = findById(t->left, id);
+		if (l != NULL) return l;
+		return findById(t->right, id);
+	}
+
+public:
+	act1Level5()
+	{
+		original = NULL; working = NULL; target = NULL;
+		n = 0; swaps = 0; alarm = 0; penalties = 0; capacity = 0;
+		state = LOST;
+	}
+	act1Level5(const act1Level5&) = delete;
+	act1Level5& operator=(const act1Level5&) = delete;
+
+	~act1Level5()
+	{
+		deleteTree(original);
+		deleteTree(working);
+		deleteTree(target);
+	}
+
+	void start(TreeNode* srcRoot)
+	{
+		deleteTree(original);
+		deleteTree(working);
+		deleteTree(target);
+
+		original = copyTree(srcRoot);
+		working = copyTree(srcRoot);
+		target = mirror(copyTree(srcRoot)); // uses your mirror() from header.h
+
+		n = countNodes(original);
+		swaps = 0;
+		alarm = 0;
+		penalties = 0;
+		capacity = (3 * n + 1) / 2 + 2;
+		state = (n > 0) ? PLAYING : LOST;
+	}
+
+	bool swapChildren(int nodeId)
+	{
+		if (state != PLAYING) return false;
+		TreeNode* node = findById(working, nodeId);
+		if (node == NULL) return false;
+		if (node->left == NULL && node->right == NULL) return false;
+
+		TreeNode* temp = node->left;
+		node->left = node->right;
+		node->right = temp;
+		swaps++;
+		return true;
+	}
+
+	void resetWorking()
+	{
+		if (state != PLAYING) return;
+		deleteTree(working);
+		working = copyTree(original);
+		swaps = 0;
+	}
+
+	bool submit()
+	{
+		if (state != PLAYING) return false;
+		alarm++;
+
+		if (treesMatch(working, target))
+		{
+			state = WON;
+			return true;
+		}
+		else
+		{
+			penalties++;
+			if (alarm >= capacity)
+				state = LOST;
+			return false;
+		}
+	}
+
+	TreeNode* getWorkingRoot() const { return working; }
+	int getN() const { return n; }
+	int getSwaps() const { return swaps; }
+	int getAlarm() const { return alarm; }
+	int getPenalties() const { return penalties; }
+	int getCapacity() const { return capacity; }
+	int getState() const { return state; }
+
+	int stars() const
+	{
+		if (state != WON) return 0;
+		if (penalties == 0) return 3;
+		if (penalties == 1) return 2;
+		return 1;
+	}
+	int score() const
+	{
+		if (state != WON) return 0;
+		int s = 1000 - 10 * alarm - 50 * penalties;
 		return s < 0 ? 0 : s;
 	}
 };
