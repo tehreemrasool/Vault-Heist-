@@ -11,10 +11,40 @@
 using namespace sf;
 using namespace std;
 
-//bool loadFont(Font& f);
-void drawText(RenderWindow& w, const Font& f, const string& s, unsigned size,float x, float y, Color c, bool center);
+
+
+class RoundedRectangleShape : public sf::Shape {
+    sf::Vector2f size;
+    float radius;
+    unsigned cornerPoints;
+public:
+    RoundedRectangleShape(sf::Vector2f s = { 0, 0 }, float r = 0, unsigned pts = 8)
+        : size(s), radius(r), cornerPoints(pts) {
+        update();
+    }
+
+    void setSize(sf::Vector2f s) { size = s; update(); }
+    void setRadius(float r) { radius = r; update(); }
+
+    std::size_t getPointCount() const override { return cornerPoints * 4; }
+
+    sf::Vector2f getPoint(std::size_t index) const override {
+        std::size_t corner = index / cornerPoints;
+        float delta = 90.f / (cornerPoints - 1);
+        sf::Vector2f c;
+        switch (corner) {
+        case 0: c = { size.x - radius, radius }; break;
+        case 1: c = { radius, radius }; break;
+        case 2: c = { radius, size.y - radius }; break;
+        default: c = { size.x - radius, size.y - radius }; break;
+        }
+        float a = delta * (index - corner) * 3.14159265f / 180.f;
+        return { radius * std::cos(a) + c.x, -radius * std::sin(a) + c.y };
+    }
+};
+
+//void drawText(RenderWindow& w, const Font& f, const string& s, unsigned size,float x, float y, Color c, bool center);
 bool isMouseOver(RenderWindow& w, float x, float y, float width, float height);
-//void drawRoundButton(RenderWindow& w, float x, float y, float width, float height,Color c, bool hover);
 
 class Screen {
 protected:
@@ -36,17 +66,25 @@ public:
     virtual void onExit() { isActive = false; }
 };
 
-// screen id 1
 class MainMenuScreen : public Screen {
     Font font;
     Font font2;
     Text title;
-    Text buttontext2;;
     Text storyLine;
     Text buttonText;
+    Text buttontext2;      
+    Text leaderboardText;
+    Text extraText;
 
-    CircleShape button;
-    CircleShape instructionButton;
+    ConvexShape button;           
+    ConvexShape instructionButton;
+    ConvexShape leaderboardButton;
+    ConvexShape extraButton;
+
+    RectangleShape storyBox;        
+    Texture borderTexture;          
+    Sprite borderSprite;
+
     Texture backgroundTexture;
     Sprite background;
     int nextScreen;
@@ -66,8 +104,6 @@ class Level1Screen : public Screen {
     Texture backgroundTexture;
     Sprite background;
     int nextScreen;
-
-    // game state
     TreeNode* root;
     int count;
     act1Level1 level;

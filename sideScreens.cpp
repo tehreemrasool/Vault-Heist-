@@ -1,8 +1,5 @@
 #include "screen.h"
 using namespace std;
-
-
-
 string getString(int level)
 {
     string s;

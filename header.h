@@ -425,7 +425,10 @@ public:
 		}
 
 	}
-
+	//int operator[]()
+	//{
+	//	return heap[i];
+	//}
 	void extractMax()
 	{
 		heap[0] = heap[size - 1];

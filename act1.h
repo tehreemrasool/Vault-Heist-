@@ -1,6 +1,8 @@
 #pragma once
 #include <cstdlib>
 #include "header.h"
+#include <ctime>
+#include <cstdlib>
 #include <cmath>
 #include <ctime>
 #include <iostream>
@@ -39,11 +41,10 @@ public:
 	{
 		answerKey->clear();
 		type = t;
-
-		if (type == PREORDER)        preOrder(root, answerKey);
-		else if (type == INORDER)    inOrder(root, answerKey);
-		else if (type == POSTORDER)  postOrder(root, answerKey);
-		else                         levelOrder(root, answerKey);
+		if (type == PREORDER) preOrder(root, answerKey);
+		else if (type == INORDER) inOrder(root, answerKey);
+		else if (type == POSTORDER)postOrder(root, answerKey);
+		else levelOrder(root, answerKey);
 
 		n = answerKey->getCount();
 		next = 0;

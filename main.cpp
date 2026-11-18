@@ -2,57 +2,21 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
 #include <iostream>
+#include "helpers.h"
 #include "screen.h"
 using namespace std;
 using namespace sf;
-
-
 #include <cmath>
 
-void drawSmoke(RenderWindow& window, float progress)
-{
-    int x[] = { 100, 250, 400, 550, 700, 850, 1000, 1150,
-                180, 350, 520, 690, 860, 1030, 1200 };
 
-    int y[] = { 150, 500, 250, 600, 180, 450, 200, 550,
-                350, 100, 400, 100, 550, 350, 100 };
-
-    float opacity;
-
-    if (progress < 0.5f)
-        opacity = progress * 2;
-    else
-        opacity = (1 - progress) * 2;
-
-    int alpha = (int)(opacity * 170);
-
-    for (int i = 0; i < 15; i++)
-    {
-        float radius = 90 + progress * 100 + (i % 3) * 20;
-
-        CircleShape smoke(radius);
-
-        smoke.setPosition(
-            x[i] - radius + sin(progress * 5 + i) * 25,
-            y[i] - radius - progress * 40
-        );
-
-        smoke.setFillColor(Color(180, 180, 190, alpha));
-
-        window.draw(smoke);
-    }
-}
 int main()
 {
     RenderWindow window(VideoMode(1280, 720),"Vault Heist");
+
     window.setFramerateLimit(60);
     Font test;
 
-    //if (!loadFont(test))
-    //{
-    //    cout << "Font not found!" <<endl;
-    //    return 1;
-    //}
+    
 
     Music music;
 
