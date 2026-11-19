@@ -144,6 +144,7 @@ sfml-window-d.lib
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Act2.cpp" />
+    <ClCompile Include="Act2level1.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainScreen.cpp" />
     <ClCompile Include="screen.cpp" />
@@ -152,6 +153,7 @@ sfml-window-d.lib
   <ItemGroup>
     <ClInclude Include="act1.h" />
     <ClInclude Include="Act2.h" />
+    <ClInclude Include="Act2Level1.h" />
     <ClInclude Include="header.h" />
     <ClInclude Include="helpers.h" />
     <ClInclude Include="screen.h" />

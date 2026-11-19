@@ -104,7 +104,7 @@ void Map::handleInput()
 
         if (e.type == Event::MouseButtonPressed && e.mouseButton.button == Mouse::Left)
         {
-            nextScreen = 2;
+            nextScreen = 7;
         }
     }
 }

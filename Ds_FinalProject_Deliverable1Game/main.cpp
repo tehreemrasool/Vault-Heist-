@@ -1,12 +1,11 @@
 #include <SFML/Graphics.hpp>
 #include<iostream>
 
-using namespace std;
-#include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
-#include <iostream>
+
 #include "helpers.h"
 #include "screen.h"
+#include "Act2Level1.h"
 using namespace std;
 using namespace sf;
 #include <cmath>
@@ -39,6 +38,7 @@ int main()
     Level3Screen level3(window);
     Level4Screen level4(window);
     Level5Screen level5(window);
+    Act2Level1Screen act2l1(window);
     Map map_(window);
     blackScreen bl(window);
 
@@ -112,6 +112,7 @@ int main()
                     current = &level4;
                 else if (pendingScreen == 6)
                     current = &level5;
+                else if (pendingScreen == 7) current = &act2l1;
                 else if (pendingScreen == 21)
                     current = &inst;
                 else if (pendingScreen == 24)
