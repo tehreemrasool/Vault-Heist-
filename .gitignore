@@ -1,3 +1,4 @@
+
 # Visual Studio temporary files
 .vs/
 *.user
@@ -19,3 +20,6 @@ Release/
 
 # Temporary files
 *.tmp
+
+# Vault Heist project files
+Vault-Heist-/
