@@ -252,7 +252,7 @@ void Act2Level1Screen::handleInput()
             else if (e.key.code == Keyboard::Return)
             {
                 if (state == WON)
-                    nextScreen = 1;     // TODO: change to 8 once Act 2 Level 2 exists
+                    nextScreen = 8;     // TODO: change to 8 once Act 2 Level 2 exists
             }
         }
     }
