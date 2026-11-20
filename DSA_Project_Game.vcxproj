@@ -160,6 +160,7 @@ sfml-audio-d.lib</AdditionalDependencies>
     <ClCompile Include="act1.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="act4Screens.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainScreen.cpp" />
     <ClCompile Include="screen.cpp">
@@ -168,7 +169,7 @@ sfml-audio-d.lib</AdditionalDependencies>
     <ClCompile Include="sideScreens.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="act2.h" />
+    <ClInclude Include="act4.h" />
     <ClInclude Include="header.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>

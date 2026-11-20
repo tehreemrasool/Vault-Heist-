@@ -2,9 +2,7 @@
 #include <cstdlib>
 #include "header.h"
 #include <ctime>
-#include <cstdlib>
 #include <cmath>
-#include <ctime>
 #include <iostream>
 using namespace std;
 
@@ -36,7 +34,7 @@ public:
 	static const int CORRECT = 1;
 	static const int WRONG = 2;
 	~act1Level1() { delete answerKey; }
-
+	int getNextId() { return (state == PLAYING) ? answerKey->getCurrId() : -1; }
 	void start(TreeNode* root, int t)
 	{
 		answerKey->clear();
@@ -105,6 +103,7 @@ public:
 		int s = 1000 - 10 * alarm;
 		return s < 0 ? 0 : s;
 	}
+	void addAlarm(int a) { alarm += a; if (state == PLAYING && alarm >= capacity) state = LOST; }
 };
 
 
@@ -134,7 +133,34 @@ private:
 	int state;
 	int checks;
 	int wrongChecks;
+	// which room currently shows this value? (values are unique, so there is one)
+	int indexOfValue(int v) const
+	{
+		for (int i = 0; i < n; i++)
+			if (val[i] == v) return i;
+		return -1;
+	}
 
+	// walk the solution from the top; report the first link the player doesn't have yet
+	bool findHint(TreeNode* t, int& p, int& side, int& c) const
+	{
+		if (t == NULL) return false;
+
+		int pi = indexOfValue(t->value);
+		TreeNode* kids[2] = { t->left, t->right };
+
+		for (int s = 0; s < 2; s++)
+		{
+			if (kids[s] == NULL) continue;
+			int ci = indexOfValue(kids[s]->value);
+			if (child[pi][s] != ci)            // player's link differs from the solution
+			{
+				p = pi; side = s; c = ci;
+				return true;
+			}
+		}
+		return findHint(t->left, p, side, c) || findHint(t->right, p, side, c);
+	}
 	void fillArray(List& l, int* out)
 	{
 		TreeNode* c = l.getHead();
@@ -165,6 +191,12 @@ public:
 			child[i][0] = child[i][1] = -1;
 			par[i] = -1;
 		}
+	}
+	// returns false if the puzzle is over or every link is already correct
+	bool getHint(int& p, int& side, int& c) const
+	{
+		if (state != PLAYING) return false;
+		return findHint(answer, p, side, c);
 	}
 	act1Level2(const act1Level2&) = delete;
 	act1Level2& operator=(const act1Level2&) = delete;

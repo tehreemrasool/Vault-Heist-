@@ -2,6 +2,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <iostream>
+#include <algorithm>
 using namespace std;
 struct TreeNode
 {
@@ -24,12 +25,14 @@ struct TreeNode
 	}
 	TreeNode(int val)
 	{
+		x = 0;
+		y = 0;
 		id = 0;
 		value = val;
 		left = NULL;
 		right = NULL;
 		parent = NULL;
-		
+
 	}
 	void setPositions(TreeNode* root, int depth, int& position)
 	{
@@ -67,11 +70,11 @@ public:
 		head = tail = curr = NULL;
 		count = 0;
 	}
-	
+
 	~List()
 	{
 		clear();
-		
+
 	}
 
 	TreeNode* getHead()
@@ -89,7 +92,7 @@ public:
 	}
 	int getCurrId()
 	{
-		return curr ? curr->id : -1; 
+		return curr ? curr->id : -1;
 	}
 	int getCount()
 	{
@@ -105,7 +108,7 @@ public:
 		else { tail->right = x; tail = x; }
 		count++;
 	}
-	
+
 };
 
 
@@ -117,7 +120,7 @@ inline void addLeft(TreeNode* n, int d, int id)
 	n->left->id = id;
 	n->left->parent = n;
 }
-inline void addright(TreeNode* n, int d,int id)
+inline void addright(TreeNode* n, int d, int id)
 {
 	n->right = new TreeNode;
 	n->right->value = d;
@@ -154,7 +157,7 @@ inline void inOrder(TreeNode* root, List* h)
 inline void levelOrder(TreeNode* root, List* h)
 {
 	if (root == NULL) return;
-	TreeNode* q[101]; 
+	TreeNode* q[101];
 	int f = 0, b = 0;
 	q[b++] = root;
 	while (f < b)
@@ -314,18 +317,21 @@ inline int depth(TreeNode* root)
 	return d;
 }
 
-inline TreeNode* findLCA(TreeNode*one, TreeNode*two)
+inline TreeNode* findLCA(TreeNode* one, TreeNode* two)
 {
 	int d1 = depth(one);
 	int d2 = depth(two);
 
+	
 	while (d1 > d2)
 	{
 		one = one->parent;
+		d1--;
 	}
 	while (d2 > d1)
 	{
 		two = two->parent;
+		d2--;
 	}
 
 	while (one != two)
@@ -343,7 +349,7 @@ inline TreeNode* mirror(TreeNode* root)
 {
 
 	if (root == NULL) return NULL;
-	root ->left = mirror(root->left);
+	root->left = mirror(root->left);
 	root->right = mirror(root->right);
 	TreeNode* temp = root->left;
 	root->left = root->right;
@@ -365,11 +371,43 @@ class maxHeap
 public:
 	maxHeap(int c)
 	{
-		cap = c;
-		heap = new int[c];
+		cap = (c > 0) ? c : 1;
+		heap = new int[cap];
 		size = 0;
 	}
 
+	
+	maxHeap(const maxHeap& other)
+	{
+		cap = other.cap;
+		size = other.size;
+		heap = new int[cap];
+		for (int i = 0; i < size; i++) heap[i] = other.heap[i];
+	}
+
+	maxHeap& operator=(const maxHeap& other)
+	{
+		if (this == &other) return *this;
+		delete[] heap;
+		cap = other.cap;
+		size = other.size;
+		heap = new int[cap];
+		for (int i = 0; i < size; i++) heap[i] = other.heap[i];
+		return *this;
+	}
+
+	~maxHeap()
+	{
+		delete[] heap;
+	}
+
+	int getSize() const { return size; }
+	int getValue(int i) const { return heap[i]; }
+
+	void copyTo(int arr[]) const
+	{
+		for (int i = 0; i < size; i++) arr[i] = heap[i];
+	}
 
 	void shiftUp(int i)
 	{
@@ -392,11 +430,12 @@ public:
 
 	void insert(int n)
 	{
+		if (size >= cap) return;     
 		heap[size] = n;
 		size++;
-		int i = size-1;
+		int i = size - 1;
 		shiftUp(i);
-		
+
 	}
 	void shiftDown(int i)
 	{
@@ -425,24 +464,24 @@ public:
 		}
 
 	}
-	//int operator[]()
-	//{
-	//	return heap[i];
-	//}
-	void extractMax()
-	{
-		heap[0] = heap[size - 1];
-		int i = size - 1;
-		shiftDown(i);
-
-	}
 
 	
+	int extractMax()
+	{
+		if (size == 0) return -1;
+		int top = heap[0];
+		heap[0] = heap[size - 1];
+		size--;
+		shiftDown(0);
+		return top;
+	}
+
+
 };
 
 inline void shiftDown(int i, int size, int heap[])
 {
-	
+
 	while (true)
 	{
 		int max = i;
@@ -510,7 +549,7 @@ inline bool isMaxHeap(int arr[], int s)
 }
 
 
-inline maxHeap buildMaxHeap(int arr[],int s)
+inline maxHeap buildMaxHeap(int arr[], int s)
 {
 	maxHeap heap(s);
 	for (int i = 0; i < s; i++)
@@ -521,4 +560,59 @@ inline maxHeap buildMaxHeap(int arr[],int s)
 }
 
 
+inline bool isCompleteTree(TreeNode* root)
+{
+	if (root == NULL) return true;
 
+	TreeNode* q[101];
+	int f = 0, b = 0;
+	q[b++] = root;
+	bool seenGap = false;
+
+	while (f < b)
+	{
+		TreeNode* c = q[f++];
+
+		if (c->left != NULL)
+		{
+			if (seenGap) return false;
+			q[b++] = c->left;
+		}
+		else seenGap = true;
+
+		if (c->right != NULL)
+		{
+			if (seenGap) return false;
+			q[b++] = c->right;
+		}
+		else seenGap = true;
+	}
+	return true;
+}
+
+inline int largerChildIndex(int i, int size, const int heap[])
+{
+	int best = i;
+	int left = 2 * i + 1;
+	int right = 2 * i + 2;
+	if (left < size && heap[left] > heap[best]) best = left;
+	if (right < size && heap[right] > heap[best]) best = right;
+	return (best == i) ? -1 : best;
+}
+
+inline int shiftDownSwaps(int i, int size, int heap[])
+{
+	int swaps = 0;
+	while (true)
+	{
+		int c = largerChildIndex(i, size, heap);
+		if (c == -1) break;
+
+		int temp = heap[c];
+		heap[c] = heap[i];
+		heap[i] = temp;
+		i = c;
+		swaps++;
+	}
+	return swaps;
+}

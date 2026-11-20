@@ -15,9 +15,6 @@ int main()
 
     window.setFramerateLimit(60);
     Font test;
-
-    
-
     Music music;
 
     if (music.openFromFile("assets/themeSong.mp3"))
@@ -38,6 +35,8 @@ int main()
     Level3Screen level3(window);
     Level4Screen level4(window);
     Level5Screen level5(window);
+    Act4Level1Screen act4level1(window);
+    Act4Level2Screen act4level2(window);
     Map map_ (window);
     blackScreen bl(window);
 
@@ -72,14 +71,14 @@ int main()
             window.close();
             break;
         }
-        if (next == 25 && currentId >= 2 && currentId <= 17)
+        if (next == 25 && currentId >= 2 && currentId <= 18)
         {
             bl.setTarget(currentId);
             pausedId = currentId;
         }
 
         if (next != currentId &&
-            next >= 2 && next <= 17 &&
+            next >= 2 && next <= 18 &&
             currentId != 25)
         {
             bl.setTarget(next);
@@ -111,6 +110,10 @@ int main()
                     current = &level4;
                 else if (pendingScreen == 6)
                     current = &level5;
+                else if (pendingScreen == 17)
+                    current = &act4level1;
+                else if (pendingScreen == 18)
+                    current = &act4level2;
                 else if (pendingScreen == 21)
                     current = &inst;
                 else if (pendingScreen == 24)

@@ -30,6 +30,9 @@
     <ClCompile Include="mainScreen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="act4Screens.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header.h">
@@ -41,7 +44,7 @@
     <ClInclude Include="helpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="act2.h">
+    <ClInclude Include="act4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

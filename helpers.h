@@ -10,7 +10,20 @@ inline bool loadFont(Font& f)
     if (f.loadFromFile("assets/Fonts/SuperShiny.ttf")) return true;
     return false;
 }
-
+static void applyHover(ConvexShape& b, Vector2f mouse)
+{
+    if (b.getGlobalBounds().contains(mouse))
+    {
+        b.setFillColor(Color(212, 110, 194, 230));
+        b.setOutlineThickness(3);
+        b.setOutlineColor(Color::White);
+    }
+    else
+    {
+        b.setFillColor(Color(212, 110, 194, 120));
+        b.setOutlineThickness(0);
+    }
+}
 static View makeLetterboxView(float winW, float winH)
 {
     View view(FloatRect(0, 0, 1280, 720));
@@ -72,7 +85,7 @@ inline void drawText(RenderWindow& w, const Font& f, const string& s, unsigned s
 
 inline bool isMouseOver(RenderWindow& w, float x, float y, float width, float height)
 {
-    Vector2i mp = sf::Mouse::getPosition(w);
+    Vector2i mp = Mouse::getPosition(w);
     return mp.x >= x && mp.x <= x + width && mp.y >= y && mp.y <= y + height;
 }
 
@@ -205,3 +218,74 @@ inline TreeNode* findClickedNode(TreeNode* root, float x, float y)
 
     return findClickedNode(root->right, x, y);
 }
+
+inline TreeNode* findNodeById(TreeNode* root, int id)
+{
+    if (root == NULL) return NULL;
+    if (root->id == id) return root;
+    TreeNode* f = findNodeById(root->left, id);
+    if (f != NULL) return f;
+    return findNodeById(root->right, id);
+}
+
+
+inline static ConvexShape makeRoundedRect(float w, float h, float r)
+{
+    const int pointsPerCorner = 8;
+    const float PI = 3.14159265f;
+
+    ConvexShape shape(pointsPerCorner * 4);
+
+    float cx[4] = { r, w - r, w - r, r };
+    float cy[4] = { r, r, h - r, h - r };
+    float startAngle[4] = { 180, 270, 0, 90 };
+
+    int index = 0;
+    for (int c = 0; c < 4; c++)
+    {
+        for (int i = 0; i < pointsPerCorner; i++)
+        {
+            float angle = (startAngle[c] + 90.0f * i / (pointsPerCorner - 1)) * PI / 180.0f;
+            shape.setPoint(index, Vector2f(cx[c] + r * cos(angle), cy[c] + r * sin(angle)));
+            index++;
+        }
+    }
+    return shape;
+}
+inline static void centerText(Text& t, const ConvexShape& b)
+{
+    FloatRect tb = t.getLocalBounds();
+    FloatRect bb = b.getGlobalBounds();
+    t.setOrigin(tb.left + tb.width / 2.0f, tb.top + tb.height / 2.0f);
+    t.setPosition(bb.left + bb.width / 2.0f, bb.top + bb.height / 2.0f);
+}
+
+class RoundedRectangleShape : public Shape {
+    Vector2f size;
+    float radius;
+    unsigned cornerPoints;
+public:
+    RoundedRectangleShape(Vector2f s = { 0, 0 }, float r = 0, unsigned pts = 8)
+        : size(s), radius(r), cornerPoints(pts) {
+        update();
+    }
+
+    void setSize(Vector2f s) { size = s; update(); }
+    void setRadius(float r) { radius = r; update(); }
+
+    size_t getPointCount() const override { return cornerPoints * 4; }
+
+    Vector2f getPoint(size_t index) const override {
+        size_t corner = index / cornerPoints;
+        float delta = 90.f / (cornerPoints - 1);
+        Vector2f c;
+        switch (corner) {
+        case 0: c = { size.x - radius, radius }; break;
+        case 1: c = { radius, radius }; break;
+        case 2: c = { radius, size.y - radius }; break;
+        default: c = { size.x - radius, size.y - radius }; break;
+        }
+        float a = delta * (index - corner) * 3.14159265f / 180.f;
+        return { radius * std::cos(a) + c.x, -radius * std::sin(a) + c.y };
+    }
+};

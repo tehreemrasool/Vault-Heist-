@@ -1,55 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include "screen.h"
-
-
-static ConvexShape makeRoundedRect(float w, float h, float r)
-{
-    const int pointsPerCorner = 8;
-    const float PI = 3.14159265f;
-
-    ConvexShape shape(pointsPerCorner * 4);
-
-    float cx[4] = { r, w - r, w - r, r };
-    float cy[4] = { r, r, h - r, h - r };
-    float startAngle[4] = { 180, 270, 0, 90 };
-
-    int index = 0;
-    for (int c = 0; c < 4; c++)
-    {
-        for (int i = 0; i < pointsPerCorner; i++)
-        {
-            float angle = (startAngle[c] + 90.0f * i / (pointsPerCorner - 1)) * PI / 180.0f;
-            shape.setPoint(index, Vector2f(cx[c] + r * cos(angle), cy[c] + r * sin(angle)));
-            index++;
-        }
-    }
-    return shape;
-}
-
-static void centerText(Text& t, const ConvexShape& b)
-{
-    FloatRect tb = t.getLocalBounds();
-    FloatRect bb = b.getGlobalBounds();
-    t.setOrigin(tb.left + tb.width / 2.0f, tb.top + tb.height / 2.0f);
-    t.setPosition(bb.left + bb.width / 2.0f, bb.top + bb.height / 2.0f);
-}
-
-static void applyHover(ConvexShape& b, Vector2f mouse)
-{
-    if (b.getGlobalBounds().contains(mouse))
-    {
-        b.setFillColor(Color(212, 110, 194, 230));
-        b.setOutlineThickness(3);
-        b.setOutlineColor(Color::White);
-    }
-    else
-    {
-        b.setFillColor(Color(212, 110, 194, 120));
-        b.setOutlineThickness(0);
-    }
-}
-
+#include "helpers.h"
 // ------------------------------------- MainMenuScreen ----------------
 MainMenuScreen::MainMenuScreen(RenderWindow& win) : Screen(win), nextScreen(1)
 {
@@ -197,4 +149,5 @@ void MainMenuScreen::draw()
     window.draw(leaderboardText);
     window.draw(extraButton);
     window.draw(extraText);
+    
 }

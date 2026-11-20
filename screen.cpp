@@ -9,24 +9,34 @@ using namespace std;
 
 Level1Screen::Level1Screen(RenderWindow& win) : Screen(win)
 {
-    loadFont(font);
+    loadFont(font);                      
+
+    hintButton = makeRoundedRect(200, 50, 12);
+    hintButton.setPosition(50, 650);     
+    hintButton.setFillColor(Color(212, 110, 194, 120));
+
+    hint.setFont(font);
+    hint.setCharacterSize(22);
+    hint.setFillColor(Color::Black);
+    hint.setString("HINT");
+    centerText(hint, hintButton);
+
+    hintTime = 0;
+    hintValue = 0;
+    hintX = hintY = 0;
 
     if (backgroundTexture.loadFromFile("assets/pictures/act1lvl1.jfif"))
     {
         background.setTexture(backgroundTexture);
-
-        background.setScale(1280.0f / backgroundTexture.getSize().x,720.0f / backgroundTexture.getSize().y
-        );
+        background.setScale(1280.0f / backgroundTexture.getSize().x,
+            720.0f / backgroundTexture.getSize().y);
     }
 
     nextScreen = 2;
     root = NULL;
     count = 0;
-
     curType = act1Level1::PREORDER;
-
     seed = (unsigned)time(NULL);
-
     flashTime = 0;
 }
 
@@ -36,7 +46,18 @@ Level1Screen::~Level1Screen()
     deleteTree(root);
 }
 
+void Level1Screen::showHint()
+{
+    if (level.getState() != act1Level1::PLAYING) return;
 
+    TreeNode* n = findNodeById(root, level.getNextId());
+    if (n == NULL) return;
+
+    hintValue = n->value;
+    hintX = n->x;
+    hintY = n->y;
+    hintTime = 4.0f;                       
+}
 void Level1Screen::newTree()
 {
     deleteTree(root);
@@ -71,20 +92,24 @@ void Level1Screen::handleInput()
             nextScreen = 99;
 
 
-        if (e.type == Event::MouseButtonPressed &&
-            e.mouseButton.button == Mouse::Left)
+        if (e.type == Event::MouseButtonPressed && e.mouseButton.button == Mouse::Left)
         {
-            float x = (float)e.mouseButton.x;
-            float y = (float)e.mouseButton.y;
+            Vector2f m = window.mapPixelToCoords(Vector2i(e.mouseButton.x, e.mouseButton.y));
 
-            TreeNode* clicked = findClickedNode(root, x, y);
-
-            if (clicked != NULL)
+            if (hintButton.getGlobalBounds().contains(m))
             {
-                int result = level.checkClick(clicked->id);
-
-                if (result == act1Level1::WRONG)
-                    flashTime = 0.35f;
+                showHint();
+            }
+            else
+            {
+                TreeNode* clicked = findClickedNode(root, m.x, m.y);
+                if (clicked != NULL)
+                {
+                    hintTime = 0;                  
+                    int result = level.checkClick(clicked->id);
+                    if (result == act1Level1::WRONG)
+                        flashTime = 0.35f;
+                }
             }
         }
         if (e.type == Event::KeyPressed)
@@ -136,8 +161,11 @@ void Level1Screen::handleInput()
 
 void Level1Screen::update(float dt)
 {
-    if (flashTime > 0)
-        flashTime -= dt;
+    if (flashTime > 0) flashTime -= dt;
+    if (hintTime > 0)  hintTime -= dt;
+
+    Vector2f mouse = window.mapPixelToCoords(Mouse::getPosition(window));
+    applyHover(hintButton, mouse);         
 }
 
 
@@ -161,6 +189,8 @@ void Level1Screen::draw()
 
     window.draw(alarmBox);
     window.draw(orderBox);
+    window.draw(hintButton);
+    window.draw(hint);
 
     drawText(window, font,"ALARM: " + to_string(level.getAlarm()) + " / " + to_string(level.getCapacity()),
         18, 70, 80, Color(255, 255, 255), false);
@@ -174,7 +204,28 @@ void Level1Screen::draw()
 
     drawTreeLines(window, root);
     drawTreeNodes(window, font, root, level);
+    if (hintTime > 0)
+    {
+        // ring around the next correct room
+        CircleShape ring(38);
+        ring.setOrigin(38, 38);
+        ring.setPosition(hintX, hintY);
+        ring.setFillColor(Color::Transparent);
+        ring.setOutlineThickness(5);
+        ring.setOutlineColor(Color(255, 220, 60));
+        window.draw(ring);
 
+        // message next to the button
+        RectangleShape box(Vector2f(220, 40));
+        box.setPosition(265, 655);
+        box.setFillColor(Color(0, 0, 0, 200));
+        box.setOutlineThickness(3);
+        box.setOutlineColor(Color(212, 110, 194));
+        window.draw(box);
+
+        drawText(window, font, "Next room: " + to_string(hintValue),
+            20, 280, 662, Color(255, 220, 60), false);
+    }
 
     if (level.getState() == act1Level1::WON)
     {
@@ -208,6 +259,20 @@ void Level1Screen::onResume()
 Level2Screen::Level2Screen(RenderWindow& win) : Screen(win)
 {
     loadFont(font);
+    hintButton = makeRoundedRect(200, 50, 12);
+    hintButton.setPosition(50, 650);
+    hintButton.setFillColor(Color(212, 110, 194, 120));
+
+    hint.setFont(font);
+    hint.setCharacterSize(22);
+    hint.setFillColor(Color::Black);
+    hint.setString("HINT");
+    centerText(hint, hintButton);
+
+    hintTime = 0;
+    hintP = hintSide = hintC = -1;
+    hintMsg = "";
+    
 
     if (backgroundTexture.loadFromFile("assets/pictures/bglevel.jfif"))
     {
@@ -229,7 +294,28 @@ Level2Screen::Level2Screen(RenderWindow& win) : Screen(win)
         nodeY[i] = 0;
     }
 }
+void Level2Screen::showHint()
+{
+    int p, side, c;
+    if (!level.getHint(p, side, c))
+    {
+        if (level.getState() == act1Level2::PLAYING)
+        {
+            hintMsg = "All links are correct - press Enter!";
+            hintP = hintC = -1;
+            hintTime = 4.0f;
+        }
+        return;
+    }
 
+    hintP = p;
+    hintSide = side;
+    hintC = c;
+    hintMsg = "Click " + to_string(level.getVal(p)) + ", then " +
+        (side == act1Level2::LEFT ? "LEFT" : "RIGHT") + "-click " +
+        to_string(level.getVal(c));
+    hintTime = 5.0f;
+}
 void Level2Screen::newPuzzle()
 {
     srand(seed++);
@@ -268,49 +354,56 @@ void Level2Screen::handleInput()
 
         if (e.type == Event::MouseButtonPressed)
         {
-            float mx = (float)e.mouseButton.x;
-            float my = (float)e.mouseButton.y;
+            // convert screen pixels to game coordinates (needed for fullscreen)
+            Vector2f m = window.mapPixelToCoords(Vector2i(e.mouseButton.x, e.mouseButton.y));
 
-            int clicked = -1;
-            for (int i = 0; i < level.getN(); i++)
+            if (e.mouseButton.button == Mouse::Left && hintButton.getGlobalBounds().contains(m))
             {
-                float dx = mx - nodeX[i];
-                float dy = my - nodeY[i];
-                if (dx * dx + dy * dy <= 30.0f * 30.0f)
-                {
-                    clicked = i;
-                    break;
-                }
-            }
-
-            if (clicked != -1)
-            {
-                if (selectedNode == -1)
-                {
-                    selectedNode = clicked;
-                }
-                else if (selectedNode == clicked)
-                {
-                    level.detach(clicked);
-                    selectedNode = -1;
-                }
-                else
-                {
-                    int side = (e.mouseButton.button == Mouse::Left)
-                        ? act1Level2::LEFT
-                        : act1Level2::RIGHT;
-
-                    if (!level.connect(selectedNode, side, clicked))
-                    {
-                        flashTime = 0.35f;
-                        statusMsg = "Cannot create a loop!";
-                    }
-                    selectedNode = -1;
-                }
+                showHint();
             }
             else
             {
-                selectedNode = -1;
+                int clicked = -1;
+                for (int i = 0; i < level.getN(); i++)
+                {
+                    float dx = m.x - nodeX[i];
+                    float dy = m.y - nodeY[i];
+                    if (dx * dx + dy * dy <= 30.0f * 30.0f)
+                    {
+                        clicked = i;
+                        break;
+                    }
+                }
+
+                if (clicked != -1)
+                {
+                    if (selectedNode == -1)
+                    {
+                        selectedNode = clicked;
+                    }
+                    else if (selectedNode == clicked)
+                    {
+                        level.detach(clicked);
+                        selectedNode = -1;
+                    }
+                    else
+                    {
+                        int side = (e.mouseButton.button == Mouse::Left)
+                            ? act1Level2::LEFT : act1Level2::RIGHT;
+
+                        if (!level.connect(selectedNode, side, clicked))
+                        {
+                            flashTime = 0.35f;
+                            statusMsg = "Cannot create a loop!";
+                        }
+                        selectedNode = -1;
+                        hintTime = 0;          // player made a move, hide the old hint
+                    }
+                }
+                else
+                {
+                    selectedNode = -1;
+                }
             }
         }
 
@@ -1338,13 +1431,13 @@ void Level5Screen::handleInput()
                 newTree();
 
             else if (e.key.code == Keyboard::N)
-                nextScreen = 1;
+                nextScreen = 17;
 
             else if (e.key.code == Keyboard::Return)
             {
                 if (level.getState() == act1Level5::WON)
                 {
-                    nextScreen = 1; // Act 1 complete -> return to Main Menu (or Act 2 later)
+                    nextScreen = 17; 
                 }
                 else if (level.getState() == act1Level5::PLAYING)
                 {
@@ -1379,8 +1472,6 @@ void Level5Screen::draw()
     window.draw(background);
 
     drawText(window, font, "ACT 1 - LEVEL 5", 40, 500, 15, Color::White, false);
-
-    // Top HUD boxes
     RectangleShape alarmBox(Vector2f(220, 50));
     RectangleShape swapBox(Vector2f(320, 50));
 
