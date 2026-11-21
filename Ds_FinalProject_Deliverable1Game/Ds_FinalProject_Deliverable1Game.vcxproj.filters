@@ -45,6 +45,24 @@
     <ClCompile Include="Act2level5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Act3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Act3level1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Act3level2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Act3level3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Act3level4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Act3level5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Act2.h">
@@ -75,6 +93,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Act2level5.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Act3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Act3level1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Act3level2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Act3level3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Act3level4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Act3level5.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

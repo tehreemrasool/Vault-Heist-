@@ -23,7 +23,11 @@ class Act2Level3Screen : public Screen {
     static const int ANIM_FLASH = 1;    // target / successor highlighted
     static const int ANIM_SLIDE = 2;    // successor value slides into target
     static const int ANIM_DONE = 3;     // short pause after the delete
-
+    static constexpr float BTN_X = 330.0f;
+    static constexpr float BTN_Y = 655.0f;
+    static constexpr float BTN_W = 190.0f;
+    static constexpr float BTN_H = 46.0f;
+    static constexpr float BTN_STEP = 210.0f;
     BST bst;
     NodeInfo nodes[MAXN];
     int nodeCount;

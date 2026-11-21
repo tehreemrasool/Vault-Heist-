@@ -4,7 +4,6 @@
 using namespace sf;
 using namespace std;
 
-
 static void balancedOrder(const int sorted[], int n, int out[])
 {
     int ql[80], qr[80];
@@ -34,7 +33,7 @@ Act2Level5Screen::Act2Level5Screen(RenderWindow& win) : Screen(win)
 
     storyFont.loadFromFile("assets/fonts/MedievalSharp.ttf");
 
-    if (backgroundTexture.loadFromFile("assets/pictures/Act2_level5.jpeg"))
+    if (backgroundTexture.loadFromFile("assets/pictures/Act2_level5 (5).jpg"))
     {
         background.setTexture(backgroundTexture);
         background.setScale(1280.0f / backgroundTexture.getSize().x,
@@ -104,12 +103,14 @@ void Act2Level5Screen::newPuzzle()
 void Act2Level5Screen::loadPuzzle(unsigned s)
 {
     srand(s);
-    int n = 10 + rand() % 3;                   
+    int n = 10 + rand() % 3;                      // 10 to 12 deliveries
 
     bst.reset();
-    bst.generateLazyArchitect(n);                
+    bst.generateLazyArchitect(n);                 // sorted inserts: a corridor
     rebuild();
     corridorHeight = bst.height(bst.getRoot());
+
+    // targets deep in the corridor, one per round
     totalPar = 0;
     for (int r = 0; r < ROUNDS; r++)
     {
@@ -240,6 +241,7 @@ void Act2Level5Screen::tryMove(int dir)
 
 void Act2Level5Screen::buildCutscene()
 {
+   
     int vals[MAXN];
     for (int i = 0; i < nodeCount; i++) vals[i] = nodes[i].value;
     for (int i = 1; i < nodeCount; i++)
@@ -369,24 +371,20 @@ void Act2Level5Screen::handleInput()
             }
 
             else if (e.key.code == Keyboard::Space)
-                loadPuzzle(puzzleSeed);         
+                loadPuzzle(puzzleSeed);         // retry the same vault
 
             else if (e.key.code == Keyboard::R)
                 newPuzzle();
-            else if (e.key.code == Keyboard::N)
-                nextScreen = 17;
-            else if (e.key.code == Keyboard::N)
-                nextScreen = 12;
 
             else if (e.key.code == Keyboard::Return)
             {
                 if (phase == PH_DELIVER && state == PLAYING)
                 {
-                    shown = nodeCount;         
+                    shown = nodeCount;      
                     deliverT = 0.8f;
                 }
                 else if (phase == PH_CUTSCENE)
-                    nextScreen = 17;             
+                    nextScreen = 12;            
             }
         }
     }
@@ -424,7 +422,7 @@ void Act2Level5Screen::drawCutscene()
     RectangleShape panel(Vector2f(1200, 470));
     panel.setPosition(40, 150);
     panel.setFillColor(Color(0, 0, 0, 170));
-    panel.setOutlineColor(Color(86, 170, 113));
+    panel.setOutlineColor(Color(180, 100, 220));
     panel.setOutlineThickness(3);
     window.draw(panel);
 
@@ -441,7 +439,7 @@ void Act2Level5Screen::drawCutscene()
 
     drawText(window, storyFont, story, 22, 70, 175, Color::White, false);
 
-    // balanced version of the same rooms
+
     drawText(window, font, "SAME ROOMS, BALANCED  (height " + to_string(simHeight) + ")",
         20, 965, 195, Color(208, 221, 183), true);
     drawText(window, font, "CORRIDOR: height " + to_string(corridorHeight) + "   BALANCED: height " + to_string(simHeight),
@@ -497,6 +495,7 @@ void Act2Level5Screen::draw()
 
     drawText(window, font, "ACT 2 - LEVEL 5", 40, 500, 15, Color::White, false);
 
+    // ---- HUD boxes ----
     RectangleShape alarmBox(Vector2f(220, 50));
     RectangleShape targetBox(Vector2f(420, 50));
 
@@ -539,6 +538,7 @@ void Act2Level5Screen::draw()
             22, 1020, 95, Color(255, 215, 70), true);
     }
 
+    // ---- prompt / feedback ----
     if (phase == PH_DELIVER)
         drawText(window, font, "Deliveries arrive in sorted order... the vault is a corridor!",
             19, 540, 95, Color::White, true);
@@ -555,6 +555,7 @@ void Act2Level5Screen::draw()
         drawText(window, font, "Left/Right or Click Child: Move | H: Hint | Space: Retry | R: New Vault",
             16, 640, 125, Color(208, 221, 183), true);
 
+    // ---- edges ----
     for (int i = 0; i < nodeCount; i++)
     {
         if (nodes[i].depth > shown) continue;
@@ -575,6 +576,7 @@ void Act2Level5Screen::draw()
         window.draw(line);
     }
 
+    // ---- nodes ----
     float radius = 30.0f;
     for (int i = 0; i < nodeCount; i++)
     {
@@ -619,6 +621,7 @@ void Act2Level5Screen::draw()
 
         drawText(window, font, to_string(n.value), 26, n.x, n.y, Color::White, true);
 
+        // text labels so colour is never the only signal
         if (isCur)
             drawText(window, font, "HERE", 16, n.x, n.y + 48, Color(255, 200, 90), true);
         else if (isHint)
@@ -627,6 +630,7 @@ void Act2Level5Screen::draw()
             drawText(window, font, "NEW", 16, n.x, n.y + 48, Color(255, 215, 70), true);
     }
 
+    // ---- bottom status ----
     drawText(window, font, "PAR: " + to_string(totalPar) + "   PENALTIES: " + to_string(penalties),
         20, 60, 650, Color::White, false);
     drawText(window, font, "HEIGHT: " + to_string(corridorHeight) + "   ROOMS: " + to_string(shown) + "/" + to_string(nodeCount),

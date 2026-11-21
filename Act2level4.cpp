@@ -9,7 +9,7 @@ Act2Level4Screen::Act2Level4Screen(RenderWindow& win) : Screen(win)
     if (!font.loadFromFile("assets/fonts/ARIAL.ttf"))
         loadFont(font);
 
-    if (backgroundTexture.loadFromFile("assets/pictures/Act2_level4.jpeg"))
+    if (backgroundTexture.loadFromFile("assets/pictures/Act2_level4 (4).jpg"))
     {
         background.setTexture(backgroundTexture);
         background.setScale(1280.0f / backgroundTexture.getSize().x,
@@ -77,7 +77,6 @@ void Act2Level4Screen::loadPuzzle(unsigned s)
 
     bst.generateRandom(s, n, 0);
     rebuild();
-
     srand(s + 5);
     for (int attempt = 0; attempt < 100; attempt++)
     {
@@ -94,6 +93,7 @@ void Act2Level4Screen::loadPuzzle(unsigned s)
             break;
     }
 
+    // run the final query and copy its result list
     for (int i = 0; i < MAXID; i++)
     {
         inRange[i] = false;
@@ -117,6 +117,7 @@ void Act2Level4Screen::loadPuzzle(unsigned s)
     par = bst.rangeOptimalSteps(lo, hi);
     capacity = BST::capacityFor(par);
 
+    // enter the root
     BSTNode* root = bst.getRoot();
     looted = 0;
     visitedCount = 0;
@@ -143,8 +144,8 @@ bool Act2Level4Screen::isNeeded(int parentId, int side)
     BSTNode* p = bst.getNodeById(parentId);
     if (p == NULL) return false;
 
-    if (side == 0) return bst.compareAt(p, lo) == 1;    // left side: only if room > lo
-    return bst.compareAt(p, hi) == -1;                  // right side: only if room < hi
+    if (side == 0) return bst.compareAt(p, lo) == 1;    
+    return bst.compareAt(p, hi) == -1;                  
 }
 
 void Act2Level4Screen::clickRoom(int i)
@@ -211,6 +212,7 @@ void Act2Level4Screen::clickRoom(int i)
     }
     else
     {
+        // wrong click: that subtree cannot hold any key inside the range
         penalties++;
         alarm++;
         flashTime = 0.35f;
@@ -324,8 +326,6 @@ void Act2Level4Screen::handleInput()
                     }
                 }
             }
-            else if (e.key.code == Keyboard::N)
-                nextScreen = 11;
 
             else if (e.key.code == Keyboard::Space)
                 loadPuzzle(puzzleSeed);         // retry the same vault
@@ -336,7 +336,7 @@ void Act2Level4Screen::handleInput()
             else if (e.key.code == Keyboard::Return)
             {
                 if (state == WON)
-                    nextScreen = 11;     // TODO: change to 11 once Act 2 Level 5 exists
+                    nextScreen = 11;  
             }
         }
     }
@@ -356,6 +356,7 @@ void Act2Level4Screen::draw()
 
     drawText(window, font, "ACT 2 - LEVEL 4", 40, 500, 15, Color::White, false);
 
+    // ---- HUD boxes ----
     RectangleShape alarmBox(Vector2f(220, 50));
     RectangleShape rangeBox(Vector2f(420, 50));
 
@@ -363,9 +364,9 @@ void Act2Level4Screen::draw()
     rangeBox.setPosition(810, 70);
     alarmBox.setFillColor(Color::Black);
     rangeBox.setFillColor(Color::Black);
-    alarmBox.setOutlineColor(Color(22, 66, 157));
+    alarmBox.setOutlineColor(Color(180, 100, 220));
     alarmBox.setOutlineThickness(3);
-    rangeBox.setOutlineColor(Color(22, 66, 157));
+    rangeBox.setOutlineColor(Color(180, 100, 220));
     rangeBox.setOutlineThickness(3);
 
     window.draw(alarmBox);

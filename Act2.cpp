@@ -7,9 +7,6 @@ static unsigned nextRandom(unsigned& state)
     return (state >> 16) & 0x7fff;
 }
 
-// ---------------------------------------------------------------
-// Constructor / destructor / reset
-// ---------------------------------------------------------------
 BST::BST()
 {
     root = NULL;
@@ -46,9 +43,6 @@ void BST::reset()
     rangeInRange = 0;
 }
 
-// ---------------------------------------------------------------
-// Basic access
-// ---------------------------------------------------------------
 BSTNode* BST::getRoot()
 {
     return root;
@@ -94,9 +88,6 @@ int BST::getNextId()
     return nextId;
 }
 
-// ---------------------------------------------------------------
-// Event text for the Event Log panel
-// ---------------------------------------------------------------
 std::string BST::describeEvent(EventNode* e)
 {
     if (e == NULL)
@@ -169,9 +160,7 @@ std::string BST::describeEvent(EventNode* e)
     return e->type;
 }
 
-// ---------------------------------------------------------------
-// Comparison helpers
-// ---------------------------------------------------------------
+
 int BST::compareAt(BSTNode* node, int key)
 {
     if (node->value < key)
@@ -209,9 +198,6 @@ int BST::stepCompare(BSTNode* node, int key)
     return result;
 }
 
-// ---------------------------------------------------------------
-// Search
-// ---------------------------------------------------------------
 BSTNode* BST::searchNode(int value, int& alarm_count)
 {
     events.clear();
@@ -243,9 +229,7 @@ BSTNode* BST::searchNode(int value, int& alarm_count)
     return NULL;
 }
 
-// ---------------------------------------------------------------
-// Insert
-// ---------------------------------------------------------------
+
 bool BST::insertNode(int id, int value)
 {
     events.clear();
@@ -310,9 +294,7 @@ bool BST::insertValue(int value)
     return insertNode(nextId, value);
 }
 
-// ---------------------------------------------------------------
-// Delete
-// ---------------------------------------------------------------
+
 bool BST::deleteNode(int value)
 {
     events.clear();
@@ -481,9 +463,6 @@ int BST::classifyDelete(int key)
     return 3;
 }
 
-// ---------------------------------------------------------------
-// Min / max / successor / predecessor
-// ---------------------------------------------------------------
 BSTNode* BST::findMinimum(BSTNode* node)
 {
     if (node == NULL)
@@ -544,9 +523,7 @@ BSTNode* BST::predecessor(BSTNode* node)
     return parentNode;
 }
 
-// ---------------------------------------------------------------
-// Range Raid (Level 2.4)
-// ---------------------------------------------------------------
+
 void BST::freeRangeResults(RangeResult*& head)
 {
     while (head != NULL)
@@ -701,9 +678,6 @@ int BST::getRangeInRange()
     return rangeInRange;
 }
 
-// ---------------------------------------------------------------
-// LCA / kth smallest
-// ---------------------------------------------------------------
 BSTNode* BST::lcaBST(int value1, int value2)
 {
     BSTNode* temp = root;
@@ -759,9 +733,6 @@ BSTNode* BST::kthSmallest(int k)
     return temp;
 }
 
-// ---------------------------------------------------------------
-// Height / counting / depth / lookup   (leaf height = 1)
-// ---------------------------------------------------------------
 int BST::height(BSTNode* node)
 {
     if (node == NULL)
@@ -856,9 +827,7 @@ void BST::clearTree(BSTNode* node)
     }
 }
 
-// ---------------------------------------------------------------
-// Optimal-step helpers
-// ---------------------------------------------------------------
+
 int BST::capacityFor(int optimal)
 {
     return (3 * optimal + 1) / 2 + 2;
@@ -906,9 +875,7 @@ int BST::insertPathLength(int key)
     return steps;
 }
 
-// ---------------------------------------------------------------
-// Level 2.5 boss
-// ---------------------------------------------------------------
+
 void BST::generateLazyArchitect(int count)
 {
     reset();
@@ -1004,9 +971,6 @@ BSTNode* BST::bossSearch(int target, int& alarmCount,
     return NULL;
 }
 
-// ---------------------------------------------------------------
-// Level generation (seeded)
-// ---------------------------------------------------------------
 int BST::buildFromKeys(const int keys[], int n)
 {
     reset();
@@ -1091,9 +1055,7 @@ void BST::generateRandom(unsigned seed, int n, int skewPercent)
     lastMessage = "Generated tree with " + std::to_string(n) + " rooms";
 }
 
-// ---------------------------------------------------------------
-// Validator (no recursion: walks the tree in sorted order)
-// ---------------------------------------------------------------
+
 bool BST::isValidBST()
 {
     if (root == NULL)
@@ -1139,9 +1101,7 @@ bool BST::isValidBST()
     return true;
 }
 
-// ---------------------------------------------------------------
-// Save / load (preorder with '#' for null)
-// ---------------------------------------------------------------
+
 void BST::writeNode(BSTNode* node, std::string& out)
 {
     if (node == NULL)
@@ -1259,9 +1219,6 @@ bool BST::loadFromString(const std::string& text)
     return true;
 }
 
-// ---------------------------------------------------------------
-// SFML-friendly data
-// ---------------------------------------------------------------
 int BST::collectNodes(NodeInfo out[], int maxN)
 {
     int n = countNodes();

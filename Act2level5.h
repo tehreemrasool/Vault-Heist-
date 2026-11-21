@@ -2,7 +2,6 @@
 #include "screen.h"
 #include "Act2.h"
 
-// screen id 11
 class Act2Level5Screen : public Screen {
 
     Font font;
@@ -11,22 +10,22 @@ class Act2Level5Screen : public Screen {
     Sprite background;
     int nextScreen;
 
-    // game state
+
     static const int MAXN = 32;
     static const int MAXID = 256;
     static const int ROUNDS = 3;
-    static const int SHRINK = 3;        // capacity lost per round
+    static const int SHRINK = 3;       
 
     static const int PLAYING = 0;
     static const int WON = 1;
     static const int LOST = 2;
 
-    static const int PH_DELIVER = 0;    // corridor builds itself
-    static const int PH_SEARCH = 1;     // boss searches
-    static const int PH_CUTSCENE = 2;   // why balancing is needed
+    static const int PH_DELIVER = 0;    
+    static const int PH_SEARCH = 1;     
+    static const int PH_CUTSCENE = 2;   
 
-    BST bst;                // the corridor the player searches
-    BST sim;                // balanced version of the same keys (cutscene)
+    BST bst;                
+    BST sim;  
 
     NodeInfo nodes[MAXN];
     int nodeCount;
@@ -73,7 +72,7 @@ class Act2Level5Screen : public Screen {
     void finishDelivery();
     void startRound();
     void completeRound();
-    void tryMove(int dir);          // 0 = left, 1 = right
+    void tryMove(int dir);         
     void buildCutscene();
     int  findNodeAt(float x, float y) const;
     int  stars() const;
