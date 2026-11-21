@@ -4,9 +4,6 @@
 using namespace sf;
 using namespace std;
 
-// Insertion order that builds a balanced BST from sorted keys
-// (breadth first over index ranges, middle element first). This only orders
-// the keys; the tree itself is built by the BST backend.
 static void balancedOrder(const int sorted[], int n, int out[])
 {
     int ql[80], qr[80];
@@ -170,7 +167,7 @@ void Act2Level5Screen::startRound()
     if (cap < par + 1) cap = par + 1;
     capacity = cap;
 
-    alarm = 1;                  // entering the root costs 1 step
+    alarm = 1;                 
     hintChildId = -1;
 
     message = "ROUND " + to_string(round + 1) + "/" + to_string(ROUNDS) +
@@ -206,7 +203,6 @@ void Act2Level5Screen::tryMove(int dir)
     BSTNode* cur = bst.getNodeById(curId);
     if (cur == NULL || idx(curId) < 0) return;
 
-    // 1 = room is bigger than the key (go LEFT), -1 = smaller (go RIGHT)
     int c = bst.compareAt(cur, targetValue);
     int correct = (c == 1) ? 0 : 1;
 
@@ -245,7 +241,7 @@ void Act2Level5Screen::tryMove(int dir)
 
 void Act2Level5Screen::buildCutscene()
 {
-    // sorted copy of the keys
+   
     int vals[MAXN];
     for (int i = 0; i < nodeCount; i++) vals[i] = nodes[i].value;
     for (int i = 1; i < nodeCount; i++)
@@ -384,11 +380,11 @@ void Act2Level5Screen::handleInput()
             {
                 if (phase == PH_DELIVER && state == PLAYING)
                 {
-                    shown = nodeCount;          // skip the delivery animation
+                    shown = nodeCount;      
                     deliverT = 0.8f;
                 }
                 else if (phase == PH_CUTSCENE)
-                    nextScreen = 1;             // Act 2 finished: back to the main menu
+                    nextScreen = 12;            
             }
         }
     }
@@ -443,7 +439,7 @@ void Act2Level5Screen::drawCutscene()
 
     drawText(window, storyFont, story, 22, 70, 175, Color::White, false);
 
-    // balanced version of the same rooms
+
     drawText(window, font, "SAME ROOMS, BALANCED  (height " + to_string(simHeight) + ")",
         20, 965, 195, Color(208, 221, 183), true);
     drawText(window, font, "CORRIDOR: height " + to_string(corridorHeight) + "   BALANCED: height " + to_string(simHeight),

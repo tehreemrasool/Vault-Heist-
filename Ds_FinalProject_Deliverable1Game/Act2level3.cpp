@@ -4,11 +4,6 @@
 using namespace sf;
 using namespace std;
 
-static const float BTN_X = 330.0f;
-static const float BTN_Y = 655.0f;
-static const float BTN_W = 190.0f;
-static const float BTN_H = 46.0f;
-static const float BTN_STEP = 210.0f;
 
 static const char* caseName(int c)
 {
@@ -321,7 +316,7 @@ void Act2Level3Screen::handleInput()
             }
 
             else if (e.key.code == Keyboard::Space)
-                loadPuzzle(puzzleSeed);         // retry the same vault
+                loadPuzzle(puzzleSeed);       
 
             else if (e.key.code == Keyboard::R)
                 newPuzzle();

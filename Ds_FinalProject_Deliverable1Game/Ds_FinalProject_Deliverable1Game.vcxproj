@@ -149,6 +149,12 @@ sfml-window-d.lib
     <ClCompile Include="Act2level3.cpp" />
     <ClCompile Include="Act2level4.cpp" />
     <ClCompile Include="Act2level5.cpp" />
+    <ClCompile Include="Act3.cpp" />
+    <ClCompile Include="Act3level1.cpp" />
+    <ClCompile Include="Act3level2.cpp" />
+    <ClCompile Include="Act3level3.cpp" />
+    <ClCompile Include="Act3level4.cpp" />
+    <ClCompile Include="Act3level5.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainScreen.cpp" />
     <ClCompile Include="screen.cpp" />
@@ -162,6 +168,12 @@ sfml-window-d.lib
     <ClInclude Include="Act2level3.h" />
     <ClInclude Include="Act2level4.h" />
     <ClInclude Include="Act2level5.h" />
+    <ClInclude Include="Act3.h" />
+    <ClInclude Include="Act3level1.h" />
+    <ClInclude Include="Act3level2.h" />
+    <ClInclude Include="Act3level3.h" />
+    <ClInclude Include="Act3level4.h" />
+    <ClInclude Include="Act3level5.h" />
     <ClInclude Include="header.h" />
     <ClInclude Include="helpers.h" />
     <ClInclude Include="screen.h" />

@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <cstring>
-#include "header.h"   // TreeNode is defined here (shared with Act 1)
+#include "header.h"   
 
 // ---------------------------------------------------------------
 // Event node (one step of what an operation did)
@@ -141,6 +141,7 @@ struct BSTNode : public TreeNode
         x = 0;
         y = 0;
     }
+    virtual ~BSTNode() {}
 };
 
 // Linked list node for Range Raid results
@@ -189,7 +190,7 @@ struct NodeInfo
 // ---------------------------------------------------------------
 class BST
 {
-private:
+protected:
     BSTNode* root;
     EventLog events;
 
@@ -220,7 +221,7 @@ private:
 
 public:
     BST();
-    ~BST();
+    virtual ~BST();
 
     // trees own raw pointers, so copying is forbidden
     BST(const BST&) = delete;

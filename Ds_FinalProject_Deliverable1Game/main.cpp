@@ -8,6 +8,11 @@
 #include "Act2Level3.h"
 #include "Act2Level4.h"
 #include "Act2Level5.h"
+#include "Act3level1.h"
+#include "Act3level2.h"
+#include "Act3level3.h"
+#include "Act3Level4.h"
+#include "Act3Level5.h"
 using namespace std;
 using namespace sf;
 #include <cmath>
@@ -45,6 +50,11 @@ int main()
     Act2Level3Screen act2l3(window);
     Act2Level4Screen act2l4(window);
     Act2Level5Screen act2l5(window);
+    Act3Level1Screen act3l1(window);
+    Act3Level2Screen act3l2(window);
+    Act3Level3Screen act3l3(window);
+    Act3Level4Screen act3l4(window);
+    Act3Level5Screen act3l5(window);
     Map map_(window);
     blackScreen bl(window);
 
@@ -128,6 +138,16 @@ int main()
                     current = &act2l4;
                 else if (pendingScreen == 11) 
                     current = &act2l5;
+                else if (pendingScreen == 12) 
+                    current = &act3l1;
+                else if (pendingScreen == 13) 
+                    current = &act3l2;
+                else if (pendingScreen == 14) 
+                    current = &act3l3;
+                else if (pendingScreen == 15)
+                    current = &act3l4;
+                else if (pendingScreen == 16)
+                    current = &act3l5;
                 else if (pendingScreen == 21)
                     current = &inst;
                 else if (pendingScreen == 24)

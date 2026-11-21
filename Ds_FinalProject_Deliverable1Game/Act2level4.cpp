@@ -73,12 +73,10 @@ void Act2Level4Screen::newPuzzle()
 void Act2Level4Screen::loadPuzzle(unsigned s)
 {
     srand(s);
-    int n = 12 + rand() % 3;                      // 12 to 14 rooms
+    int n = 12 + rand() % 3;                     
 
     bst.generateRandom(s, n, 0);
     rebuild();
-
-    // pick a range from the vault's own values: 3-6 rooms in range, 3+ rooms prunable
     srand(s + 5);
     for (int attempt = 0; attempt < 100; attempt++)
     {
@@ -146,9 +144,8 @@ bool Act2Level4Screen::isNeeded(int parentId, int side)
     BSTNode* p = bst.getNodeById(parentId);
     if (p == NULL) return false;
 
-    // compareAt: 1 = room value bigger than key, -1 = smaller
-    if (side == 0) return bst.compareAt(p, lo) == 1;    // left side: only if room > lo
-    return bst.compareAt(p, hi) == -1;                  // right side: only if room < hi
+    if (side == 0) return bst.compareAt(p, lo) == 1;    
+    return bst.compareAt(p, hi) == -1;                  
 }
 
 void Act2Level4Screen::clickRoom(int i)
@@ -339,7 +336,7 @@ void Act2Level4Screen::handleInput()
             else if (e.key.code == Keyboard::Return)
             {
                 if (state == WON)
-                    nextScreen = 11;     // TODO: change to 11 once Act 2 Level 5 exists
+                    nextScreen = 11;  
             }
         }
     }
