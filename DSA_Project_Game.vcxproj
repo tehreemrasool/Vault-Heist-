@@ -160,15 +160,28 @@ sfml-audio-d.lib</AdditionalDependencies>
     <ClCompile Include="act1.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Act2.cpp" />
+    <ClCompile Include="Act2level1.cpp" />
+    <ClCompile Include="Act2level2.cpp" />
+    <ClCompile Include="Act2level3.cpp" />
+    <ClCompile Include="Act2level4.cpp" />
+    <ClCompile Include="Act2level5.cpp" />
     <ClCompile Include="act4Screens.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainScreen.cpp" />
+    <ClCompile Include="sandbox.cpp" />
     <ClCompile Include="screen.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="sideScreens.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Act2.h" />
+    <ClInclude Include="Act2Level1.h" />
+    <ClInclude Include="Act2level2.h" />
+    <ClInclude Include="Act2level3.h" />
+    <ClInclude Include="Act2level4.h" />
+    <ClInclude Include="Act2level5.h" />
     <ClInclude Include="act4.h" />
     <ClInclude Include="header.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>

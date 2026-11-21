@@ -708,6 +708,24 @@ private:
 		if (l != NULL) return l;
 		return findById(t->right, id);
 	}
+	int hintWalk(TreeNode* w)
+	{
+		if (w == NULL) return -1;
+
+		int r = hintWalk(w->left);
+		if (r != -1) return r;
+		r = hintWalk(w->right);
+		if (r != -1) return r;
+
+		if (w->left == NULL && w->right == NULL) return -1;   // leaves never need a swap
+
+		TreeNode* o = findById(original, w->id);
+		int wl = (w->left != NULL) ? w->left->id : -1;
+		int ol = (o != NULL && o->left != NULL) ? o->left->id : -1;
+
+		if (wl == ol) return w->id;      // still not swapped
+		return -1;
+	}
 
 public:
 	act1Level5()
@@ -743,7 +761,11 @@ public:
 		capacity = (3 * n + 1) / 2 + 2;
 		state = (n > 0) ? PLAYING : LOST;
 	}
-
+	int getHintId()
+	{
+		if (state != PLAYING) return -1;
+		return hintWalk(working);
+	}
 	bool swapChildren(int nodeId)
 	{
 		if (state != PLAYING) return false;

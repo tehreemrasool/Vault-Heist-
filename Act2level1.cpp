@@ -9,7 +9,7 @@ Act2Level1Screen::Act2Level1Screen(RenderWindow& win) : Screen(win)
     if (!font.loadFromFile("assets/fonts/ARIAL.ttf"))
         loadFont(font);
 
-    if (backgroundTexture.loadFromFile("assets/pictures/Act2_level1 (1).jpg"))
+    if (backgroundTexture.loadFromFile("assets/pictures/Act2_level1.jpeg"))
     {
         background.setTexture(backgroundTexture);
         background.setScale(1280.0f / backgroundTexture.getSize().x,
@@ -57,7 +57,6 @@ void Act2Level1Screen::newPuzzle()
         if (nodes[i].id >= 0 && nodes[i].id < MAXID)
             idxOf[nodes[i].id] = i;
 
-    // pick a target that is not near the root, so the search takes some steps
     int cand[MAXN];
     int c = 0;
     for (int i = 0; i < nodeCount; i++)
@@ -103,7 +102,6 @@ void Act2Level1Screen::tryMove(int dir)
     BSTNode* cur = bst.getNodeById(curId);
     if (cur == NULL) return;
 
-    // 1 = room is bigger than the key (go LEFT), -1 = smaller (go RIGHT)
     int c = bst.compareAt(cur, targetValue);
     int correct = (c == 1) ? 0 : 1;
 
@@ -248,11 +246,12 @@ void Act2Level1Screen::handleInput()
 
             else if (e.key.code == Keyboard::R)
                 newPuzzle();
-
+            else if (e.key.code == Keyboard::N)
+                nextScreen = 8;
             else if (e.key.code == Keyboard::Return)
             {
                 if (state == WON)
-                    nextScreen = 8;     // TODO: change to 8 once Act 2 Level 2 exists
+                    nextScreen = 8;     
             }
         }
     }
@@ -272,7 +271,6 @@ void Act2Level1Screen::draw()
 
     drawText(window, font, "ACT 2 - LEVEL 1", 40, 500, 15, Color::White, false);
 
-    // ---- HUD boxes ----
     RectangleShape alarmBox(Vector2f(220, 50));
     RectangleShape targetBox(Vector2f(420, 50));
 
@@ -280,15 +278,14 @@ void Act2Level1Screen::draw()
     targetBox.setPosition(810, 70);
     alarmBox.setFillColor(Color::Black);
     targetBox.setFillColor(Color::Black);
-    alarmBox.setOutlineColor(Color(180, 100, 220));
+    alarmBox.setOutlineColor(Color(22, 66, 157));
     alarmBox.setOutlineThickness(3);
-    targetBox.setOutlineColor(Color(180, 100, 220));
+    targetBox.setOutlineColor(Color(22, 66, 157));
     targetBox.setOutlineThickness(3);
 
     window.draw(alarmBox);
     window.draw(targetBox);
 
-    // alarm meter fill (inside the alarm box)
     float fraction = (capacity > 0) ? (float)alarm / (float)capacity : 1.0f;
     if (fraction > 1.0f) fraction = 1.0f;
     RectangleShape bar(Vector2f(214 * fraction, 44));
@@ -330,7 +327,7 @@ void Act2Level1Screen::draw()
         line.setRotation(atan2(diff.y, diff.x) * 180.0f / 3.14159f);
 
         bool onPath = visited[p] && nodes[i].id >= 0 && nodes[i].id < MAXID && visited[nodes[i].id];
-        line.setFillColor(onPath ? Color(212, 110, 194) : Color(208, 221, 183));
+        line.setFillColor(onPath ? Color(110, 115, 210) : Color(208, 221, 183));
         window.draw(line);
     }
 
@@ -351,7 +348,7 @@ void Act2Level1Screen::draw()
 
         if (state == WON && isCur)       circle.setOutlineColor(Color::Green);
         else if (isHint)                 circle.setOutlineColor(Color(255, 215, 70));
-        else if (isVisited)              circle.setOutlineColor(Color(212, 110, 194));
+        else if (isVisited)              circle.setOutlineColor(Color(110, 115, 210));
         else                             circle.setOutlineColor(Color(208, 221, 183));
 
         window.draw(circle);
@@ -377,7 +374,6 @@ void Act2Level1Screen::draw()
 
         drawText(window, font, to_string(n.value), 26, n.x, n.y, Color::White, true);
 
-        // text labels so colour is never the only signal
         if (isCur)
             drawText(window, font, (state == WON) ? "FOUND" : "HERE",
                 16, n.x, n.y + 48, Color(255, 200, 90), true);
@@ -385,7 +381,6 @@ void Act2Level1Screen::draw()
             drawText(window, font, "HINT", 16, n.x, n.y + 48, Color(255, 215, 70), true);
     }
 
-    // ---- bottom status ----
     drawText(window, font, "PAR: " + to_string(optimal) + "   PENALTIES: " + to_string(penalties),
         20, 60, 668, Color::White, false);
 

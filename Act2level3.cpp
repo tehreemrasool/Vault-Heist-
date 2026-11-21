@@ -22,7 +22,7 @@ Act2Level3Screen::Act2Level3Screen(RenderWindow& win) : Screen(win)
     if (!font.loadFromFile("assets/fonts/ARIAL.ttf"))
         loadFont(font);
 
-    if (backgroundTexture.loadFromFile("assets/pictures/Act2_level3 (3).jpg"))
+    if (backgroundTexture.loadFromFile("assets/pictures/Act2_level3.jpeg"))
     {
         background.setTexture(backgroundTexture);
         background.setScale(1280.0f / backgroundTexture.getSize().x,
@@ -83,10 +83,8 @@ void Act2Level3Screen::newPuzzle()
 void Act2Level3Screen::loadPuzzle(unsigned s)
 {
     srand(s);
-    int n = 10 + rand() % 3;                      // 10 to 12 rooms
+    int n = 10 + rand() % 3;                      
 
-    // keep generating (derived seeds, still reproducible) until the vault
-    // has at least one leaf, one one-child room and one two-child room
     bool ok = false;
     for (int attempt = 0; attempt < 50 && !ok; attempt++)
     {
@@ -101,8 +99,6 @@ void Act2Level3Screen::loadPuzzle(unsigned s)
         }
         ok = (has[1] > 0 && has[2] > 0 && has[3] > 0);
     }
-
-    // shuffle which case comes in which round
     srand(s + 3);
     for (int i = 0; i < ROUNDS; i++) caseOrder[i] = i + 1;
     for (int i = ROUNDS - 1; i > 0; i--)
@@ -111,7 +107,7 @@ void Act2Level3Screen::loadPuzzle(unsigned s)
         int t = caseOrder[i]; caseOrder[i] = caseOrder[j]; caseOrder[j] = t;
     }
 
-    capacity = BST::capacityFor(ROUNDS);          // par = one correct pick per round
+    capacity = BST::capacityFor(ROUNDS);          
 
     round = 0;
     alarm = 0;
@@ -140,7 +136,6 @@ void Act2Level3Screen::pickTarget(int r)
         if (bst.classifyDelete(nodes[i].value) == caseOrder[r])
             cand[c++] = i;
 
-    // fallback: the tree changed and that case no longer exists
     if (c == 0)
         for (int i = 0; i < nodeCount; i++)
             if (bst.classifyDelete(nodes[i].value) != 0)
@@ -201,7 +196,6 @@ void Act2Level3Screen::applyDelete()
     bst.deleteNode(targetValue);
     rebuild();
 
-    // in the two-child case the target room keeps its place and takes the successor's value
     resultId = (targetCase == 3) ? targetId : -1;
 
     message = "ROOM REMOVED!";
@@ -308,6 +302,8 @@ void Act2Level3Screen::handleInput()
 
             else if (e.key.code == Keyboard::Num3)
                 choose(3);
+            else if (e.key.code == Keyboard::N)
+                nextScreen = 10;
 
             else if (e.key.code == Keyboard::H)
             {
@@ -321,7 +317,7 @@ void Act2Level3Screen::handleInput()
             }
 
             else if (e.key.code == Keyboard::Space)
-                loadPuzzle(puzzleSeed);         // retry the same vault
+                loadPuzzle(puzzleSeed);         
 
             else if (e.key.code == Keyboard::R)
                 newPuzzle();
@@ -329,7 +325,7 @@ void Act2Level3Screen::handleInput()
             else if (e.key.code == Keyboard::Return)
             {
                 if (state == WON)
-                    nextScreen = 10;     // TODO: change to 10 once Act 2 Level 4 exists
+                    nextScreen = 10;     
             }
         }
     }
@@ -376,9 +372,9 @@ void Act2Level3Screen::draw()
     targetBox.setPosition(810, 70);
     alarmBox.setFillColor(Color::Black);
     targetBox.setFillColor(Color::Black);
-    alarmBox.setOutlineColor(Color(180, 100, 220));
+    alarmBox.setOutlineColor(Color(22, 66, 157));
     alarmBox.setOutlineThickness(3);
-    targetBox.setOutlineColor(Color(180, 100, 220));
+    targetBox.setOutlineColor(Color(22, 66, 157));
     targetBox.setOutlineThickness(3);
 
     window.draw(alarmBox);
@@ -552,7 +548,7 @@ void Act2Level3Screen::draw()
             btn.setFillColor(Color::Black);
             btn.setOutlineThickness(3);
 
-            if (locked)                  btn.setOutlineColor(Color(90, 60, 110));
+            if (locked)                  btn.setOutlineColor(Color(30, 78, 106));
             else if (hover == i + 1)     btn.setOutlineColor(Color(255, 215, 70));
             else                         btn.setOutlineColor(Color(180, 100, 220));
             window.draw(btn);

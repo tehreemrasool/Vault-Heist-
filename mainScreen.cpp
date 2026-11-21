@@ -78,7 +78,7 @@ MainMenuScreen::MainMenuScreen(RenderWindow& win) : Screen(win), nextScreen(1)
     centerText(leaderboardText, leaderboardButton);
 
     extraText.setFont(font);
-    extraText.setString("Button 4");             
+    extraText.setString("Sand Box");             
     extraText.setCharacterSize(22);
     extraText.setFillColor(Color::Black);
     centerText(extraText, extraButton);
@@ -109,11 +109,11 @@ void MainMenuScreen::handleInput()
             if (button.getGlobalBounds().contains(click))
                 nextScreen = 24;
             if (instructionButton.getGlobalBounds().contains(click))
-                nextScreen = 21;
+                nextScreen = 22;
             if (leaderboardButton.getGlobalBounds().contains(click))
                 nextScreen = 1;   
             if (extraButton.getGlobalBounds().contains(click))
-                nextScreen = 1;   
+                nextScreen = 23;   
 
             levelNumber = 1;
         }

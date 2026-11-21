@@ -391,7 +391,7 @@ public:
 	{
 		alarm = 0;
 		penalities = 0;
-		capacity = act4Capacity(optimalSwaps);
+		capacity = act4Capacity(optimalSwaps); 
 		state = PLAYING;
 		do {
 			generateRandomArray(arr, n, 7, 15);
@@ -405,8 +405,6 @@ public:
 		}
 
 		optimalSwaps = buildHeapSwaps(temp, n);
-
-
 	}
 
 	void swapNodes(int i, int j)
@@ -456,4 +454,464 @@ public:
 	int score() const { return (state == WON) ? act4Score(alarm, penalities) : 0; }
 
 };
+//---------------------------------level 3-------------------------------------------------
+class act4Level3
+{
+public:
+	static const int PLAYING = 0;
+	static const int WON = 1;
+	static const int LOST = 2;
 
+private:
+	int state;
+	int penalities;
+	int arr[15];
+	int initialarr[15];
+	int n;
+	int initialN;
+	int curIdx;
+	bool rootRemoved;
+	int optimaltakes;
+	int alarm;
+	int cap;
+
+public:
+	act4Level3()
+	{
+		reset();
+	}
+
+	void reset()
+	{
+		state = LOST;
+		penalities = 0;
+		n = 0;
+		initialN = 0;
+		curIdx = -1;
+		rootRemoved = false;
+		alarm = 0;
+		optimaltakes = 0;
+		cap = 0;
+	}
+
+	void start()
+	{
+		reset();
+		makeRandomHeap(arr, n, 7, 12);
+		initialN = n;
+
+		for (int i = 0; i < n; i++)
+		{
+			initialarr[i] = arr[i];
+		}
+		int copy[15];
+		for (int i = 0; i < n; i++) copy[i] = arr[i];
+		copy[0] = copy[n - 1];
+		optimaltakes = 1 + shiftDownSwaps(0, n - 1, copy);
+
+		cap = act4Capacity(optimaltakes);
+		rootRemoved = false;
+		curIdx = -1;
+		state = PLAYING;
+	}
+
+	void resetPuzzle()
+	{
+		if (state != PLAYING) return;
+		n = initialN;
+		for (int i = 0; i < n; i++)
+		{
+			arr[i] = initialarr[i];
+		}
+		rootRemoved = false;
+		curIdx = -1;
+	}
+
+	bool removeRoot()
+	{
+		if (state != PLAYING || rootRemoved) return false;
+
+		arr[0] = arr[n - 1];
+		n--;
+		rootRemoved = true;
+		curIdx = 0;
+		alarm++;
+
+		if (largerChildIndex(0, n, arr) == -1)
+			state = WON;
+		else if (alarm >= cap)
+			state = LOST;
+
+		return true;
+	}
+
+	bool swapNodes(int i, int j)
+	{
+		if (state != PLAYING) return false;
+		if (i < 0 || i >= n || j < 0 || j >= n || i == j) return false;
+
+		if (!rootRemoved)
+		{
+			alarm++;
+			penalities++;
+			if (alarm >= cap) state = LOST;
+			return false;
+		}
+
+		int target = largerChildIndex(curIdx, n, arr);
+
+		if ((i == curIdx && j == target) || (j == curIdx && i == target))
+		{
+			int temp = arr[i];
+			arr[i] = arr[j];
+			arr[j] = temp;
+			curIdx = target;
+			alarm++;
+
+			if (largerChildIndex(curIdx, n, arr) == -1)
+				state = WON;
+			else if (alarm >= cap)
+				state = LOST;
+
+			return true;
+		}
+		alarm++;
+		penalities++;
+		if (alarm >= cap) state = LOST;
+		return false;
+	}
+
+	bool getHint(int& a, int& b) const
+	{
+		if (state != PLAYING) return false;
+
+		if (!rootRemoved)
+		{
+			a = 0;
+			b = n - 1;
+			return true;
+		}
+
+		int target = largerChildIndex(curIdx, n, arr);
+		if (target == -1) return false;
+
+		a = curIdx;
+		b = target;
+		return true;
+	}
+
+	int getN() const { return n; }
+	int getVal(int i) const { return arr[i]; }
+	int getCurIdx() const { return curIdx; }
+	bool isRootRemoved() const { return rootRemoved; }
+	int getState() const { return state; }
+	int getAlarm() const { return alarm; }
+	int getCapacity() const { return cap; }
+	int stars() const { return (state == WON) ? act4Stars(alarm, optimaltakes, penalities) : 0; }
+	int score() const { return (state == WON) ? act4Score(alarm, penalities) : 0; }
+};
+
+
+class act4Level4
+{
+public:
+	static const int PLAYING = 0;
+	static const int WON = 1;
+	static const int LOST = 2;
+
+private:
+	int state;
+	int penalities;
+	int arr[15];
+	int initialarr[15];
+	int n;
+	int heapEnd;
+	int curIdx;
+	bool needExtract;
+	int optimaltakes;
+	int alarm;
+	int cap;
+
+public:
+	act4Level4()
+	{
+		reset();
+	}
+
+	void reset()
+	{
+		state = LOST;
+		penalities = 0;
+		n = 0;
+		heapEnd = 0;
+		curIdx = -1;
+		needExtract = true;
+		alarm = 0;
+		optimaltakes = 0;
+		cap = 0;
+	}
+
+	void start()
+	{
+		reset();
+		makeRandomHeap(arr, n, 6, 9);
+
+		for (int i = 0; i < n; i++)
+		{
+			initialarr[i] = arr[i];
+		}
+
+		int copy[15];
+		for (int i = 0; i < n; i++) copy[i] = arr[i];
+		optimaltakes = heapSortSteps(copy, n);
+
+		cap = act4Capacity(optimaltakes);
+		heapEnd = n;
+		curIdx = -1;
+		needExtract = true;
+		state = PLAYING;
+	}
+
+	void resetPuzzle()
+	{
+		if (state != PLAYING) return;
+		for (int i = 0; i < n; i++)
+		{
+			arr[i] = initialarr[i];
+		}
+		heapEnd = n;
+		curIdx = -1;
+		needExtract = true;
+	}
+
+	bool swapNodes(int i, int j)
+	{
+		if (state != PLAYING) return false;
+		if (i < 0 || i >= n || j < 0 || j >= n || i == j) return false;
+
+		if (needExtract)
+		{
+			int last = heapEnd - 1;
+			if ((i == 0 && j == last) || (j == 0 && i == last))
+			{
+				int temp = arr[0];
+				arr[0] = arr[last];
+				arr[last] = temp;
+				heapEnd--;
+				alarm++;
+
+				if (heapEnd <= 1)
+				{
+					state = WON;
+				}
+				else if (largerChildIndex(0, heapEnd, arr) == -1)
+				{
+					needExtract = true;
+					curIdx = -1;
+				}
+				else
+				{
+					needExtract = false;
+					curIdx = 0;
+				}
+
+				if (state == PLAYING && alarm >= cap)
+					state = LOST;
+
+				return true;
+			}
+			alarm++;
+			penalities++;
+			if (alarm >= cap) state = LOST;
+			return false;
+		}
+		else
+		{
+			int target = largerChildIndex(curIdx, heapEnd, arr);
+			if ((i == curIdx && j == target) || (j == curIdx && i == target))
+			{
+				int temp = arr[i];
+				arr[i] = arr[j];
+				arr[j] = temp;
+				curIdx = target;
+				alarm++;
+
+				if (largerChildIndex(curIdx, heapEnd, arr) == -1)
+				{
+					needExtract = true;
+					curIdx = -1;
+					if (heapEnd <= 1) state = WON;
+				}
+
+				if (state == PLAYING && alarm >= cap)
+					state = LOST;
+
+				return true;
+			}
+			alarm++;
+			penalities++;
+			if (alarm >= cap) state = LOST;
+			return false;
+		}
+	}
+
+	bool getHint(int& a, int& b) const
+	{
+		if (state != PLAYING) return false;
+
+		if (needExtract)
+		{
+			a = 0;
+			b = heapEnd - 1;
+			return true;
+		}
+
+		int target = largerChildIndex(curIdx, heapEnd, arr);
+		if (target == -1) return false;
+
+		a = curIdx;
+		b = target;
+		return true;
+	}
+
+	int getN() const { return n; }
+	int getVal(int i) const { return arr[i]; }
+	int getHeapEnd() const { return heapEnd; }
+	int getCurIdx() const { return curIdx; }
+	bool isNeedExtract() const { return needExtract; }
+	int getState() const { return state; }
+	int getAlarm() const { return alarm; }
+	int getCapacity() const { return cap; }
+	int stars() const { return (state == WON) ? act4Stars(alarm, optimaltakes, penalities) : 0; }
+	int score() const { return (state == WON) ? act4Score(alarm, penalities) : 0; }
+};
+//-----------------level 5------------------
+
+inline bool isSortedAscending(const int arr[], int s)
+{
+	for (int i = 0; i < s - 1; i++)
+	{
+		if (arr[i] > arr[i + 1]) return false;
+	}
+	return true;
+}
+
+class act4Level5
+{
+public:
+	static const int PLAYING = 0;
+	static const int WON = 1;
+	static const int LOST = 2;
+
+private:
+	int state;
+	int penalities;
+	int arr[15];
+	int initialarr[15];
+	int n;
+	bool heapBuilt;
+	int optimaltakes;
+	int alarm;
+	int cap;
+
+public:
+	act4Level5()
+	{
+		reset();
+	}
+
+	void reset()
+	{
+		state = LOST;
+		penalities = 0;
+		n = 0;
+		heapBuilt = false;
+		alarm = 0;
+		optimaltakes = 0;
+		cap = 0;
+	}
+
+	void start()
+	{
+		reset();
+		do {
+			generateRandomArray(arr, n, 6, 9);
+		} while (isMaxHeap(arr, n) || isSortedAscending(arr, n));
+
+		for (int i = 0; i < n; i++)
+		{
+			initialarr[i] = arr[i];
+		}
+
+		// Optimal steps = Build Max Heap swaps + Heap Sort steps
+		int copy[15];
+		for (int i = 0; i < n; i++) copy[i] = arr[i];
+		int buildSteps = buildHeapSwaps(copy, n);
+		int sortSteps = heapSortSteps(copy, n);
+		optimaltakes = buildSteps + sortSteps;
+
+		cap = act4Capacity(optimaltakes);
+		heapBuilt = false;
+		state = PLAYING;
+	}
+
+	void resetPuzzle()
+	{
+		if (state != PLAYING) return;
+		for (int i = 0; i < n; i++)
+		{
+			arr[i] = initialarr[i];
+		}
+		heapBuilt = false;
+	}
+
+	void swapNodes(int i, int j)
+	{
+		if (state != PLAYING) return;
+		if (i < 0 || i >= n || j < 0 || j >= n || i == j) return;
+
+		int temp = arr[i];
+		arr[i] = arr[j];
+		arr[j] = temp;
+		alarm++;
+
+		if (!heapBuilt && isMaxHeap(arr, n))
+		{
+			heapBuilt = true;
+		}
+
+		if (isSortedAscending(arr, n))
+		{
+			state = WON;
+		}
+		else if (alarm >= cap)
+		{
+			state = LOST;
+		}
+	}
+
+	bool checkVault()
+	{
+		if (state != PLAYING) return false;
+
+		if (isSortedAscending(arr, n))
+		{
+			state = WON;
+			return true;
+		}
+
+		alarm++;
+		penalities++;
+		if (alarm >= cap) state = LOST;
+		return false;
+	}
+
+	int getN() const { return n; }
+	int getVal(int i) const { return arr[i]; }
+	bool isHeapBuilt() const { return heapBuilt; }
+	int getState() const { return state; }
+	int getAlarm() const { return alarm; }
+	int getCapacity() const { return cap; }
+	int stars() const { return (state == WON) ? act4Stars(alarm, optimaltakes, penalities) : 0; }
+	int score() const { return (state == WON) ? act4Score(alarm, penalities) : 0; }
+};

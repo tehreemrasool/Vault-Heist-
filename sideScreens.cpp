@@ -7,6 +7,11 @@ string getString(int level)
     if (level == 3)return "Security breach detected.\nThe alarm is spreading\nthrough every connected level.\nCalculate how far it can reach\n before the entire vault locks down.";
     if (level == 4) return "Every path has an origin.\nFind the chamber where two\n journeys become one.";
     if (level == 5) return "\tWhat stands on the left\n\tmust stand on the right.\n\tWhat stands on the right\n\t must stand on the left.\nOnly then will the path reveal itself.";
+    if (level == 6)  return "\tThe treasure is known,\n\tbut the way is not.\n\tEvery room whispers a number.\n\tSmaller, go left.\n\tLarger, go right.\n\tDo not wander,\n  or the guards will find you.";
+    if (level == 7)  return "\tThe vault must hold\n\t more than it does.\n\tPlace each new treasure\n\t where the order demands,\n\tor the architect's\n\tdesign will crumble.";
+    if (level == 8)  return "\tSome rooms must fall.\n\tA lone leaf may simply vanish,\nbut a room with heirs must\n hand down its place.\nKnow which case you face\n before you strike.";
+    if (level == 9)  return "\tYou need not walk every hall.\n\tOnly the rooms between two values\n\thold what you came for.\n\tLeave the rest in the dark.";
+    if (level == 10) return "The Lazy Architect built\n each room as it arrived,\none after another,\n until the vault became a corridor.\nThe alarm will close in.\n Find the treasure before it does.";
     if (level == 16) return "The strongest treasure must always\n stand above the weaker ones. ";
     if (level == 17) return "The hierarchy has been corrupted.\n Restore the order before the guards arrive.";
     if (level == 18) return "The greatest must leave first.\n But removing the strongest\n will disturb the entire hierarchy.";
@@ -15,30 +20,6 @@ string getString(int level)
     return "The vault awaits...";
 }
 
-string getHint(int level)
-{
-    if (level == 1) return "hint1";
-    if (level == 2) return "hint1";
-    if (level == 3) return "hint1";
-    if (level == 4) return "hint1";
-    if (level == 5) return "hint1";
-    if (level == 6) return "hint1";
-    if (level == 7) return "hint1";
-    if (level == 8) return "hint1";
-    if (level == 9) return "hint1";
-    if (level == 10) return "hint1";
-    if (level == 11) return "hint1";
-    if (level == 12) return "hint1";
-    if (level == 13) return "hint1";
-    if (level == 14) return "hint1";
-    if (level == 15) return "hint1";
-    if (level == 16) return "hint1";
-    if (level == 17) return "hint1";
-    if (level == 18) return "hint1";
-    if (level == 19) return "hint1";
-    if (level == 20) return "hint1";
-    
-}
 void blackScreen::setTarget(int screenId)
 {
     targetScreen = screenId;
@@ -202,7 +183,7 @@ void instructionWindow::draw()
 void instructionWindow::onEnter()
 {
     isActive = true;
-    nextScreen = 21;
+    nextScreen = 22;
 
 }
 

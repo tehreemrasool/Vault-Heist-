@@ -9,7 +9,7 @@ Act2Level2Screen::Act2Level2Screen(RenderWindow& win) : Screen(win)
     if (!font.loadFromFile("assets/fonts/ARIAL.ttf"))
         loadFont(font);
 
-    if (backgroundTexture.loadFromFile("assets/pictures/Act2_level2 (2).jpg"))
+    if (backgroundTexture.loadFromFile("assets/pictures/Act2_level2.jpeg"))
     {
         background.setTexture(backgroundTexture);
         background.setScale(1280.0f / backgroundTexture.getSize().x,
@@ -70,7 +70,6 @@ void Act2Level2Screen::loadPuzzle(unsigned s)
     bst.generateRandom(s, n, 0);
     sim.generateRandom(s, n, 0);                  // identical tree for the dry run
 
-    // choose the loot keys and add up the optimal steps with the sim tree
     srand(s + 1);
     totalOptimal = 0;
     for (int r = 0; r < ROUNDS; r++)
@@ -112,7 +111,7 @@ void Act2Level2Screen::startRound()
     curId = (r != NULL) ? r->id : -1;
     if (curId >= 0 && curId < MAXID) visited[curId] = true;
 
-    alarm++;                    // entering the root costs 1 step
+    alarm++;                    
     hintDir = -1;
     hintChildId = -1;
 }
@@ -127,7 +126,6 @@ void Act2Level2Screen::tryMove(int dir)
 
     int key = keys[round];
 
-    // 1 = room is bigger than the key (go LEFT), -1 = smaller (go RIGHT)
     int c = bst.compareAt(cur, key);
     int correct = (c == 1) ? 0 : 1;
 
@@ -150,7 +148,6 @@ void Act2Level2Screen::tryMove(int dir)
 
         if (childId == -1)
         {
-            // empty slot: stash the loot here
             if (!bst.insertValue(key))
             {
                 message = "Duplicate rejected! That room already exists.";
@@ -215,7 +212,6 @@ int Act2Level2Screen::findNodeAt(float x, float y) const
     return -1;
 }
 
-// where the hollow "empty slot" circle of the current room is drawn
 void Act2Level2Screen::slotPos(int side, float& x, float& y) const
 {
     const NodeInfo& cur = nodes[idxOf[curId]];
@@ -272,7 +268,6 @@ void Act2Level2Screen::handleInput()
                 const NodeInfo cur = nodes[idxOf[curId]];
                 bool handled = false;
 
-                // clicking an empty slot
                 for (int side = 0; side < 2 && !handled; side++)
                 {
                     int childId = (side == 0) ? cur.leftId : cur.rightId;
@@ -289,7 +284,6 @@ void Act2Level2Screen::handleInput()
                     }
                 }
 
-                // clicking a child room
                 if (!handled)
                 {
                     int i = findNodeAt(mx, my);
@@ -318,6 +312,8 @@ void Act2Level2Screen::handleInput()
 
             else if (e.key.code == Keyboard::Right || e.key.code == Keyboard::D)
                 tryMove(1);
+            else if (e.key.code == Keyboard::N)
+                nextScreen = 9;
 
             else if (e.key.code == Keyboard::H)
             {
@@ -380,9 +376,9 @@ void Act2Level2Screen::draw()
     lootBox.setPosition(810, 70);
     alarmBox.setFillColor(Color::Black);
     lootBox.setFillColor(Color::Black);
-    alarmBox.setOutlineColor(Color(180, 100, 220));
+    alarmBox.setOutlineColor(Color(22, 66, 157));
     alarmBox.setOutlineThickness(3);
-    lootBox.setOutlineColor(Color(180, 100, 220));
+    lootBox.setOutlineColor(Color(22, 66, 157));
     lootBox.setOutlineThickness(3);
 
     window.draw(alarmBox);

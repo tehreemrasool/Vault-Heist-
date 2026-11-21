@@ -153,6 +153,11 @@ class Level3Screen : public Screen {
     act1Level3 level;
     unsigned seed;
 
+    Text hint;
+    ConvexShape hintButton;
+    float hintTime;
+    string hintMsg;
+    void showHint();
     float timeLeft;
     float flashTime;
     float messageTime;
@@ -212,6 +217,15 @@ class Level4Screen : public Screen {
     act1Level4 level;
     unsigned seed;
 
+
+    Text hint;
+    ConvexShape hintButton;
+    float hintTime;
+    string hintMsg;
+    int hintStage;
+    int hintLcaId;
+    void showHint();
+
     int selectedLcaId;
     int selectedLcaVal;
     string pathInput;
@@ -243,6 +257,13 @@ class Level5Screen : public Screen {
     Texture backgroundTexture;
     Sprite background;
     int nextScreen;
+
+    Text hint;
+    ConvexShape hintButton;
+    float hintTime;
+    string hintMsg;
+    int hintNodeId;
+    void showHint();
 
     // game state
     act1Level5 level;
@@ -314,28 +335,6 @@ public:
 
 };
 
-//----------------screen id 22----------------------------
-class hintScreen : public Screen
-{
-    Font font;
-    Text instructions;
-    //Texture backgroundTexture;
-    //Sprite background;
-    RectangleShape square;
-    int nextScreen;
-    int targetScreen;
-
-public:
-    hintScreen(RenderWindow& window);
-    void draw() override;
-    void update(float time) override;
-    void setTarget(int screenId);
-    void setMessage(int screenId);
-    int getNextScreen() const override { return nextScreen; }
-    void onEnter() override;
-    void handleInput() override;
-
-};
 
 
 class Act4Level1Screen : public Screen {
@@ -345,7 +344,6 @@ class Act4Level1Screen : public Screen {
     Sprite background;
     int nextScreen;
 
-    // hint (same as Act 1 level 1 and 2)
     Text hint;
     ConvexShape hintButton;
     float hintTime;
@@ -409,6 +407,166 @@ public:
     void onResume() override;
     void handleInput() override;
     void update(float time) override;
+    int getNextScreen() const override { return nextScreen; }
+    void onEnter() override;
+};
+
+//------------------------level 3
+
+// screen id 19
+class Act4Level3Screen : public Screen {
+
+    Font font;
+    Texture backgroundTexture;
+    Sprite background;
+    int nextScreen;
+
+    Text hint;
+    ConvexShape hintButton;
+    float hintTime;
+    int hintA, hintB;
+    string hintMsg;
+    void showHint();
+
+    Text removeRootText;
+    ConvexShape removeRootButton;
+
+    act4Level3 level;
+    float nodeX[15];
+    float nodeY[15];
+    int selectedNode;
+    unsigned seed;
+    float flashTime;
+    float animTime;
+    string message;
+    Color messageColor;
+
+    void newPuzzle();
+    void doRemoveRoot();
+
+public:
+    Act4Level3Screen(RenderWindow& win);
+    void draw() override;
+    void onResume() override;
+    void handleInput() override;
+    void update(float time) override;
+    int getNextScreen() const override { return nextScreen; }
+    void onEnter() override;
+};
+
+//----------------------level 4
+// screen id 20
+class Act4Level4Screen : public Screen {
+
+    Font font;
+    Texture backgroundTexture;
+    Sprite background;
+    int nextScreen;
+
+    Text hint;
+    ConvexShape hintButton;
+    float hintTime;
+    int hintA, hintB;
+    string hintMsg;
+    void showHint();
+
+    act4Level4 level;
+    float nodeX[15];
+    float nodeY[15];
+    int selectedNode;
+    unsigned seed;
+    float flashTime;
+    float animTime;
+    string message;
+    Color messageColor;
+
+    void newPuzzle();
+
+public:
+    Act4Level4Screen(RenderWindow& win);
+    void draw() override;
+    void onResume() override;
+    void handleInput() override;
+    void update(float time) override;
+    int getNextScreen() const override { return nextScreen; }
+    void onEnter() override;
+};
+//--------------act 4 level 5
+// screen id 21
+class Act4Level5Screen : public Screen {
+
+    Font font;
+    Texture backgroundTexture;
+    Sprite background;
+    int nextScreen;
+
+    Text unlockText;
+    ConvexShape unlockButton;
+
+
+    act4Level5 level;
+    float nodeX[15];
+    float nodeY[15];
+    int selectedNode;
+    unsigned seed;
+    float flashTime;
+    float animTime;
+    string message;
+    Color messageColor;
+
+    void newPuzzle();
+    void doUnlock();
+
+public:
+    Act4Level5Screen(RenderWindow& win);
+    void draw() override;
+    void onResume() override;
+    void handleInput() override;
+    void update(float time) override;
+    int getNextScreen() const override { return nextScreen; }
+    void onEnter() override;
+};
+
+//-------------------------------------------------------
+//sand box
+
+// screen id 23
+class SandboxScreen : public Screen {
+    int mode;         
+   
+        
+    Font font;
+    Texture backgroundTexture;
+    Sprite background;
+    int nextScreen;
+
+    TreeNode* root;
+    int nextId;
+    maxHeap heap;
+    int sortedVals[31];
+    int sortedCount;
+
+    string input;
+    string logLines[8];
+    int highlightId;
+    RectangleShape btn[6];
+
+    void clearAll();
+    void addLog(const string& s);
+    void runOp(int op);
+    void randomFill();
+    void drawTree(TreeNode* n);
+    void drawHeap();
+
+    TreeNode* insertBST(TreeNode* n, TreeNode* par, int v, bool& ok);
+    TreeNode* deleteBST(TreeNode* n, int v, bool& found);
+
+public:
+    SandboxScreen(RenderWindow& win);
+    ~SandboxScreen();
+    void draw() override;
+    void handleInput() override;
+    void update(float time) override {}
     int getNextScreen() const override { return nextScreen; }
     void onEnter() override;
 };

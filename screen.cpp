@@ -3,7 +3,18 @@
 using namespace sf;
 using namespace std;
 
+static void setupHintButton(Text& hint, ConvexShape& hintButton, const Font& font)
+{
+    hintButton = makeRoundedRect(200, 50, 12);
+    hintButton.setPosition(1040, 650);
+    hintButton.setFillColor(Color(212, 110, 194, 120));
 
+    hint.setFont(font);
+    hint.setCharacterSize(22);
+    hint.setFillColor(Color::Black);
+    hint.setString("HINT");
+    centerText(hint, hintButton);
+}
 
 // -------------------------------------------- Level1 Screen ----------------
 
@@ -459,8 +470,11 @@ void Level2Screen::handleInput()
 
 void Level2Screen::update(float dt)
 {
-    if (flashTime > 0)
-        flashTime -= dt;
+    if (flashTime > 0) flashTime -= dt;
+    if (hintTime > 0)  hintTime -= dt;
+
+    Vector2f mouse = window.mapPixelToCoords(Mouse::getPosition(window));
+    applyHover(hintButton, mouse);
 }
 
 void Level2Screen::draw()
@@ -468,12 +482,15 @@ void Level2Screen::draw()
     window.clear();
     window.draw(background);
 
+
     int n = level.getN();
 
     drawText(window, font, "ACT 1 - LEVEL 2", 40, 500, 15, Color::White, false);
 
     RectangleShape seqBox1(Vector2f(420, 45));
     RectangleShape seqBox2(Vector2f(420, 45));
+    window.draw(hintButton);
+    window.draw(hint);
 
     seqBox1.setPosition(50, 70);
     seqBox2.setPosition(810, 70);
@@ -550,7 +567,33 @@ void Level2Screen::draw()
         drawText(window, font, to_string(level.getVal(i)),
             26, nodeX[i], nodeY[i], Color::White, true);
     }
+    if (hintTime > 0)
+    {
+        if (hintP != -1 && hintC != -1)
+        {
+            CircleShape ringP(38);
+            ringP.setOrigin(38, 38);
+            ringP.setPosition(nodeX[hintP], nodeY[hintP]);
+            ringP.setFillColor(Color::Transparent);
+            ringP.setOutlineThickness(5);
+            ringP.setOutlineColor(Color(255, 220, 60));
+            window.draw(ringP);
 
+            CircleShape ringC = ringP;
+            ringC.setPosition(nodeX[hintC], nodeY[hintC]);
+            ringC.setOutlineColor(Color(120, 255, 120));
+            window.draw(ringC);
+        }
+
+        RectangleShape box(Vector2f(560, 40));
+        box.setPosition(265, 655);
+        box.setFillColor(Color(0, 0, 0, 200));
+        box.setOutlineThickness(3);
+        box.setOutlineColor(Color(212, 110, 194));
+        window.draw(box);
+
+        drawText(window, font, hintMsg, 20, 280, 662, Color(255, 220, 60), false);
+    }
     if (level.getState() == act1Level2::WON)
     {
         drawText(window, font, "VAULT MAP RESTORED! PRESS ENTER!",
@@ -633,6 +676,9 @@ Level3Screen::Level3Screen(RenderWindow & win) : Screen(win)
         background.setScale(1280.0f / backgroundTexture.getSize().x,
             720.0f / backgroundTexture.getSize().y);
     }
+    setupHintButton(hint, hintButton, font);
+    hintTime = 0;
+    hintMsg = "";
 
     nextScreen = 4;
     root = NULL;
@@ -645,7 +691,21 @@ Level3Screen::Level3Screen(RenderWindow & win) : Screen(win)
     animTime = 0;
     messageColor = Color::White;
 }
+void Level3Screen::showHint()
+{
+    if (level.getState() != act1Level3::PLAYING) return;
 
+    TreeNode* cur = findNodeById(root, level.getCurrentId());
+    if (cur == NULL) return;
+
+    if (cur->left == NULL && cur->right == NULL)
+        hintMsg = "Leaf room: no children, so height = 1";
+    else
+        hintMsg = "Children heights: L=" + to_string(findHeight(cur->left)) +
+        ", R=" + to_string(findHeight(cur->right)) + ". Height = 1 + taller one";
+
+    hintTime = 5.0f;
+}
 
 Level3Screen::~Level3Screen()
 {
@@ -729,6 +789,12 @@ void Level3Screen::handleInput()
     {
         if (e.type == Event::Closed)
             nextScreen = 99;
+        if (e.type == Event::MouseButtonPressed && e.mouseButton.button == Mouse::Left)
+        {
+            Vector2f m = window.mapPixelToCoords(Vector2i(e.mouseButton.x, e.mouseButton.y));
+            if (hintButton.getGlobalBounds().contains(m))
+                showHint();
+        }
         if (e.type == Event::TextEntered)
         {
             if (level.getState() == act1Level3::PLAYING &&
@@ -738,6 +804,7 @@ void Level3Screen::handleInput()
                 input += (char)e.text.unicode;
             }
         }
+
         if (e.type == Event::KeyPressed)
         {
 
@@ -755,7 +822,8 @@ void Level3Screen::handleInput()
                 if (level.getState() == act1Level3::PLAYING)
                     submitAnswer();
             }
-
+            else if (e.key.code == Keyboard::H)
+                showHint();
             else if (e.key.code == Keyboard::R)
                 newTree();
             else if (e.key.code == Keyboard::N)
@@ -779,7 +847,9 @@ void Level3Screen::handleInput()
 void Level3Screen::update(float dt)
 {
     animTime += dt;
-
+    if (hintTime > 0) hintTime -= dt;
+    Vector2f mouse = window.mapPixelToCoords(Mouse::getPosition(window));
+    applyHover(hintButton, mouse);
     if (flashTime > 0)
         flashTime -= dt;
 
@@ -822,7 +892,8 @@ void Level3Screen::draw()
     alarmBox.setOutlineThickness(3);
     timerBox.setOutlineColor(Color(180, 100, 220));
     timerBox.setOutlineThickness(3);
-
+    window.draw(hintButton);
+    window.draw(hint);
     window.draw(alarmBox);
     window.draw(timerBox);
 
@@ -852,6 +923,8 @@ void Level3Screen::draw()
 
     if (messageTime > 0)
         drawText(window, font, message, 24, 640, 100, messageColor, true);
+    else if (hintTime > 0)
+        drawText(window, font, hintMsg, 18, 550, 100, Color(255, 220, 60), true);
     else
         drawText(window, font, "Height of the purple room? (leaf = 1)",
             20, 640, 100, Color::White, true);
@@ -962,6 +1035,11 @@ Level4Screen::Level4Screen(RenderWindow& win) : Screen(win)
         background.setScale(1280.0f / backgroundTexture.getSize().x,
             720.0f / backgroundTexture.getSize().y);
     }
+    setupHintButton(hint, hintButton, font);
+    hintTime = 0;
+    hintMsg = "";
+    hintStage = 0;
+    hintLcaId = -1;
 
     nextScreen = 5;
     root = NULL;
@@ -981,7 +1059,32 @@ Level4Screen::~Level4Screen()
 {
     deleteTree(root);
 }
+void Level4Screen::showHint()
+{
+    if (level.getState() != act1Level4::PLAYING) return;
 
+    TreeNode* a = level.getNodeA();
+    TreeNode* b = level.getNodeB();
+    if (a == NULL || b == NULL) return;
+
+    if (hintStage == 0)
+    {
+        int da = depth(a) - 1;          // edges below the root
+        int db = depth(b) - 1;
+        hintMsg = "Depths: " + to_string(a->value) + " = " + to_string(da) + ", " +
+            to_string(b->value) + " = " + to_string(db) + ". Climb the deeper one first.";
+        hintLcaId = -1;
+        hintStage = 1;
+    }
+    else
+    {
+        TreeNode* lca = findLCA(a, b);
+        hintLcaId = (lca != NULL) ? lca->id : -1;
+        hintMsg = "LCA ringed. Edges = depthA + depthB - 2 x depthLCA";
+    }
+
+    hintTime = 5.0f;
+}
 void Level4Screen::newTree()
 {
     deleteTree(root);
@@ -990,7 +1093,9 @@ void Level4Screen::newTree()
     srand(seed++);
     count = 7 + rand() % 8;
     root = constructBinaryTree(count);
-
+    hintTime = 0;
+    hintStage = 0;
+    hintLcaId = -1;
     int position = 0;
     int maxDepth = getMaxDepth(root);
     setTreePositions(root, 0, position, count, maxDepth);
@@ -1039,6 +1144,9 @@ void Level4Screen::submitAnswer()
     pathInput.clear();
     activeBox = 0;
     messageTime = 1.4f;
+    hintTime = 0;
+    hintStage = 0;
+    hintLcaId = -1;
 
     if (result == act1Level4::CORRECT)
     {
@@ -1064,21 +1172,24 @@ void Level4Screen::handleInput()
 
         if (e.type == Event::MouseButtonPressed && e.mouseButton.button == Mouse::Left)
         {
+            
             float mx = (float)e.mouseButton.x;
             float my = (float)e.mouseButton.y;
 
-            // Check if player clicked Box 1 (LCA) or Box 2 (Path Length)
-            if (mx >= 430 && mx <= 550 && my >= 654 && my <= 702)
+            Vector2f hm = window.mapPixelToCoords(Vector2i(e.mouseButton.x, e.mouseButton.y));
+
+            if (hintButton.getGlobalBounds().contains(hm))
+            {
+                showHint();
+            }
+            else if (mx >= 430 && mx <= 550 && my >= 654 && my <= 702)   // was a plain "if"
             {
                 activeBox = 0;
             }
-            else if (mx >= 760 && mx <= 880 && my >= 654 && my <= 702)
-            {
-                activeBox = 1;
-            }
+            
+           
             else if (level.getState() == act1Level4::PLAYING)
             {
-                // Click a node on the tree (using radius 30 matching drawn circle)
                 TreeNode* clicked = NULL;
                 TreeNode* q[101];
                 int f = 0, b = 0;
@@ -1101,7 +1212,7 @@ void Level4Screen::handleInput()
                 {
                     selectedLcaId = clicked->id;
                     selectedLcaVal = clicked->value;
-                    activeBox = 1; // automatically focus path length box next
+                    activeBox = 1; 
                 }
             }
         }
@@ -1163,6 +1274,9 @@ void Level4Screen::update(float dt)
     animTime += dt;
     if (flashTime > 0) flashTime -= dt;
     if (messageTime > 0) messageTime -= dt;
+    if (hintTime > 0) hintTime -= dt;
+    Vector2f mouse = window.mapPixelToCoords(Mouse::getPosition(window));
+    applyHover(hintButton, mouse);
 }
 
 void Level4Screen::draw()
@@ -1172,10 +1286,10 @@ void Level4Screen::draw()
 
     drawText(window, font, "ACT 1 - LEVEL 4", 40, 500, 15, Color::White, false);
 
-    // Top HUD boxes
     RectangleShape alarmBox(Vector2f(220, 50));
     RectangleShape targetBox(Vector2f(420, 50));
-
+    window.draw(hintButton);
+    window.draw(hint);
     alarmBox.setPosition(50, 70);
     targetBox.setPosition(810, 70);
     alarmBox.setFillColor(Color::Black);
@@ -1201,19 +1315,31 @@ void Level4Screen::draw()
 
     if (messageTime > 0)
         drawText(window, font, message, 22, 540, 95, messageColor, true);
+    else if (hintTime > 0)
+        drawText(window, font, hintMsg, 17, 540, 95, Color(255, 220, 60), true);
     else
         drawText(window, font, "Click the Lowest Common Ancestor & enter edge distance",
             19, 540, 95, Color::White, true);
 
-    // Tree
     drawTreeLines(window, root);
     drawLevel4Nodes(window, font, root, level, selectedLcaId, animTime);
-
-    // Round progress
+    if (hintTime > 0 && hintLcaId != -1)
+    {
+        TreeNode* h = findNodeById(root, hintLcaId);
+        if (h != NULL)
+        {
+            CircleShape ring(40);
+            ring.setOrigin(40, 40);
+            ring.setPosition(h->x, h->y);
+            ring.setFillColor(Color::Transparent);
+            ring.setOutlineThickness(5);
+            ring.setOutlineColor(Color(120, 255, 120));
+            window.draw(ring);
+        }
+    }
     drawText(window, font, "ROUND: " + to_string(level.getCurrentRound()) + " / " + to_string(level.getTotalRounds()),
         20, 60, 668, Color::White, false);
 
-    // Bottom status / 2 submission boxes
     if (level.getState() == act1Level4::WON)
     {
         drawText(window, font, "VAULT CLEARED! PRESS ENTER FOR LEVEL 5!",
@@ -1226,7 +1352,6 @@ void Level4Screen::draw()
     }
     else
     {
-        // Box 1: LCA Room (selected by clicking node)
         drawText(window, font, "LCA ROOM:", 20, 355, 678, Color::White, true);
 
         RectangleShape lcaBox(Vector2f(120, 46));
@@ -1240,7 +1365,6 @@ void Level4Screen::draw()
         Color lcaColor = (selectedLcaVal != -1) ? Color(212, 110, 194) : Color(160, 160, 160);
         drawText(window, font, lcaShown, 22, 490, 678, lcaColor, true);
 
-        // Box 2: Path Length (edges)
         drawText(window, font, "EDGES:", 20, 695, 678, Color::White, true);
 
         RectangleShape lenBox(Vector2f(120, 46));
@@ -1302,10 +1426,14 @@ static void drawLevel5Nodes(RenderWindow& window, const Font& font, TreeNode* no
 
 Level5Screen::Level5Screen(RenderWindow& win) : Screen(win)
 {
+    setupHintButton(hint, hintButton, font);
+    hintTime = 0;
+    hintMsg = "";
+    hintNodeId = -1;
     if (!font.loadFromFile("assets/fonts/ARIAL.ttf"))
         loadFont(font);
 
-    if (backgroundTexture.loadFromFile("assets/pictures/bglevel.jfif"))
+    if (backgroundTexture.loadFromFile("assets/pictures/mirror.jfif"))
     {
         background.setTexture(backgroundTexture);
         background.setScale(1280.0f / backgroundTexture.getSize().x,
@@ -1320,7 +1448,19 @@ Level5Screen::Level5Screen(RenderWindow& win) : Screen(win)
     messageTime = 0;
     messageColor = Color::White;
 }
+void Level5Screen::showHint()
+{
+    if (level.getState() != act1Level5::PLAYING) return;
 
+    hintNodeId = level.getHintId();
+
+    if (hintNodeId == -1)
+        hintMsg = "Every room is swapped - press Enter!";
+    else
+        hintMsg = "Swap the ringed room (work from the bottom up)";
+
+    hintTime = 4.0f;
+}
 void Level5Screen::refreshLayout()
 {
     TreeNode* wRoot = level.getWorkingRoot();
@@ -1370,12 +1510,17 @@ void Level5Screen::handleInput()
 
         if (e.type == Event::MouseButtonPressed && e.mouseButton.button == Mouse::Left)
         {
+            Vector2f hm = window.mapPixelToCoords(Vector2i(e.mouseButton.x, e.mouseButton.y));
+
+            if (hintButton.getGlobalBounds().contains(hm))
+            {
+                showHint();
+            }
             if (level.getState() == act1Level5::PLAYING)
             {
                 float mx = (float)e.mouseButton.x;
                 float my = (float)e.mouseButton.y;
 
-                // Find clicked node in working tree
                 TreeNode* clicked = NULL;
                 TreeNode* q[101];
                 int f = 0, b = 0;
@@ -1429,15 +1574,17 @@ void Level5Screen::handleInput()
 
             else if (e.key.code == Keyboard::R)
                 newTree();
+            else if (e.key.code == Keyboard::H)
+                showHint();
 
             else if (e.key.code == Keyboard::N)
-                nextScreen = 17;
+                nextScreen = 7;
 
             else if (e.key.code == Keyboard::Return)
             {
                 if (level.getState() == act1Level5::WON)
                 {
-                    nextScreen = 17; 
+                    nextScreen = 7; 
                 }
                 else if (level.getState() == act1Level5::PLAYING)
                 {
@@ -1462,6 +1609,9 @@ void Level5Screen::handleInput()
 
 void Level5Screen::update(float dt)
 {
+    if (hintTime > 0) hintTime -= dt;
+    Vector2f mouse = window.mapPixelToCoords(Mouse::getPosition(window));
+    applyHover(hintButton, mouse);
     if (flashTime > 0) flashTime -= dt;
     if (messageTime > 0) messageTime -= dt;
 }
@@ -1474,7 +1624,8 @@ void Level5Screen::draw()
     drawText(window, font, "ACT 1 - LEVEL 5", 40, 500, 15, Color::White, false);
     RectangleShape alarmBox(Vector2f(220, 50));
     RectangleShape swapBox(Vector2f(320, 50));
-
+    window.draw(hintButton);
+    window.draw(hint);
     alarmBox.setPosition(50, 70);
     swapBox.setPosition(910, 70);
     alarmBox.setFillColor(Color::Black);
@@ -1495,10 +1646,11 @@ void Level5Screen::draw()
 
     if (messageTime > 0)
         drawText(window, font, message, 22, 590, 90, messageColor, true);
+    else if (hintTime > 0)
+        drawText(window, font, hintMsg, 19, 590, 90, Color(255, 220, 60), true);
     else
         drawText(window, font, "Click a room to swap its Left & Right children to mirror the vault!",
             19, 590, 90, Color::White, true);
-
     drawText(window, font, "Click Room: Swap Children | Space: Reset | Enter: Submit | R: New Tree",
         16, 640, 125, Color(208, 221, 183), true);
 
@@ -1506,8 +1658,21 @@ void Level5Screen::draw()
     TreeNode* wRoot = level.getWorkingRoot();
     drawTreeLines(window, wRoot);
     drawLevel5Nodes(window, font, wRoot, lastSwappedId, level.getState());
+    if (hintTime > 0 && hintNodeId != -1)
+    {
+        TreeNode* h = findNodeById(wRoot, hintNodeId);
+        if (h != NULL)
+        {
+            CircleShape ring(40);
+            ring.setOrigin(40, 40);
+            ring.setPosition(h->x, h->y);
+            ring.setFillColor(Color::Transparent);
+            ring.setOutlineThickness(5);
+            ring.setOutlineColor(Color(255, 220, 60));
+            window.draw(ring);
+        }
+    }
 
-    // Bottom status
     if (level.getState() == act1Level5::WON)
     {
         drawText(window, font, "ACT 1 CLEARED! VAULT MIRRORED! PRESS ENTER!",
