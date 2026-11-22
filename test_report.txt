@@ -1,0 +1,40 @@
+Vault Heist - Unit Test Report
+==============================
+[PASS] Tree traversals  (6 passed, 0 failed)
+[PASS] Tree reconstruction (inorder+pre/post)  (4 passed, 0 failed)
+[PASS] Tree metrics: height, diameter, depth, LCA  (10 passed, 0 failed)
+[PASS] Mirror  (4 passed, 0 failed)
+[PASS] Random tree builder  (4 passed, 0 failed)
+[PASS] maxHeap class  (8 passed, 0 failed)
+[PASS] Heap functions: heapify, heap sort, swaps  (19 passed, 0 failed)
+[PASS] Complete tree check  (3 passed, 0 failed)
+[PASS] Act 4 helpers (capacity, stars, score)  (16 passed, 0 failed)
+[PASS] Act 1 Level 1 (traversal order)  (23 passed, 0 failed)
+[PASS] Act 1 Level 2 (reconstruction)  (24 passed, 0 failed)
+[PASS] Act 1 Level 3 (height)  (15 passed, 0 failed)
+[PASS] Act 1 Level 4 (LCA / path length)  (10 passed, 0 failed)
+[PASS] Act 1 Level 5 (mirror)  (17 passed, 0 failed)
+[PASS] BST basics  (24 passed, 0 failed)
+[PASS] BST navigation (successor, k-th, LCA)  (14 passed, 0 failed)
+[PASS] BST delete (3 cases)  (16 passed, 0 failed)
+[PASS] BST range query  (9 passed, 0 failed)
+[PASS] BST serialization and generators  (21 passed, 0 failed)
+[PASS] BST events / boss search  (5 passed, 0 failed)
+[PASS] AVL rotations on insert  (11 passed, 0 failed)
+[PASS] AVL stress and delete rebalancing  (10 passed, 0 failed)
+[PASS] AVL order statistics  (13 passed, 0 failed)
+[PASS] AVL all four rotation cases (LL/RR/LR/RL)  (205 passed, 0 failed)
+[PASS] AVL manual rotation  (11 passed, 0 failed)
+[PASS] AVL insert prediction  (9 passed, 0 failed)
+[PASS] AVL build, clone, serialization  (16 passed, 0 failed)
+[PASS] AVL size audit  (4 passed, 0 failed)
+[PASS] Act 4 Level 1 (build heap links)  (15 passed, 0 failed)
+[PASS] Act 4 Level 2 (heapify)  (8 passed, 0 failed)
+[PASS] Act 4 Level 3 (extract + sift down)  (14 passed, 0 failed)
+[PASS] Act 4 Level 4 (heap sort)  (9 passed, 0 failed)
+[PASS] Act 4 Level 5 (boss)  (9 passed, 0 failed)
+
+TOTAL CHECKS: 586
+PASSED: 586
+FAILED: 0
+RESULT: ALL TESTS PASSED
