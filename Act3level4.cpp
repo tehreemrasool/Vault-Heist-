@@ -18,7 +18,7 @@ Act3Level4Screen::Act3Level4Screen(RenderWindow& win) : Screen(win)
 {
     loadFont(font);
 
-    if (backgroundTexture.loadFromFile("assets/pictures/Act3_level4.jpg"))
+    if (backgroundTexture.loadFromFile("assets/pictures/Act3_level4.jpeg"))
     {
         background.setTexture(backgroundTexture);
         background.setScale(1280.0f / backgroundTexture.getSize().x,
@@ -458,9 +458,9 @@ void Act3Level4Screen::draw()
     roundBox.setPosition(910, 70);
     alarmBox.setFillColor(Color::Black);
     roundBox.setFillColor(Color::Black);
-    alarmBox.setOutlineColor(Color(180, 100, 220));
+    alarmBox.setOutlineColor(Color(213, 41, 69));
     alarmBox.setOutlineThickness(3);
-    roundBox.setOutlineColor(Color(180, 100, 220));
+    roundBox.setOutlineColor(Color(213, 41, 69));
     roundBox.setOutlineThickness(3);
 
     window.draw(alarmBox);

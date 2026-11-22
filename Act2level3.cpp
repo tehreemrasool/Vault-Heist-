@@ -17,7 +17,7 @@ Act2Level3Screen::Act2Level3Screen(RenderWindow& win) : Screen(win)
     if (!font.loadFromFile("assets/fonts/ARIAL.ttf"))
         loadFont(font);
 
-    if (backgroundTexture.loadFromFile("assets/pictures/Act2_level3 (3).jpg"))
+    if (backgroundTexture.loadFromFile("assets/pictures/Act2_level3.jpeg"))
     {
         background.setTexture(backgroundTexture);
         background.setScale(1280.0f / backgroundTexture.getSize().x,
@@ -78,10 +78,9 @@ void Act2Level3Screen::newPuzzle()
 void Act2Level3Screen::loadPuzzle(unsigned s)
 {
     srand(s);
-    int n = 10 + rand() % 3;                      // 10 to 12 rooms
+    int n = 10 + rand() % 3;                  
 
-    // keep generating (derived seeds, still reproducible) until the vault
-    // has at least one leaf, one one-child room and one two-child room
+
     bool ok = false;
     for (int attempt = 0; attempt < 50 && !ok; attempt++)
     {
@@ -97,7 +96,6 @@ void Act2Level3Screen::loadPuzzle(unsigned s)
         ok = (has[1] > 0 && has[2] > 0 && has[3] > 0);
     }
 
-    // shuffle which case comes in which round
     srand(s + 3);
     for (int i = 0; i < ROUNDS; i++) caseOrder[i] = i + 1;
     for (int i = ROUNDS - 1; i > 0; i--)
@@ -106,7 +104,7 @@ void Act2Level3Screen::loadPuzzle(unsigned s)
         int t = caseOrder[i]; caseOrder[i] = caseOrder[j]; caseOrder[j] = t;
     }
 
-    capacity = BST::capacityFor(ROUNDS);          // par = one correct pick per round
+    capacity = BST::capacityFor(ROUNDS);          
 
     round = 0;
     alarm = 0;
@@ -314,6 +312,8 @@ void Act2Level3Screen::handleInput()
                     messageTime = 3.0f;
                 }
             }
+            else if (e.key.code == Keyboard::N)
+                nextScreen = 10;
 
             else if (e.key.code == Keyboard::Space)
                 loadPuzzle(puzzleSeed);       
@@ -371,9 +371,9 @@ void Act2Level3Screen::draw()
     targetBox.setPosition(810, 70);
     alarmBox.setFillColor(Color::Black);
     targetBox.setFillColor(Color::Black);
-    alarmBox.setOutlineColor(Color(180, 100, 220));
+    alarmBox.setOutlineColor(Color(75, 144, 184));
     alarmBox.setOutlineThickness(3);
-    targetBox.setOutlineColor(Color(180, 100, 220));
+    targetBox.setOutlineColor(Color(75, 144, 184));
     targetBox.setOutlineThickness(3);
 
     window.draw(alarmBox);
@@ -431,7 +431,6 @@ void Act2Level3Screen::draw()
         window.draw(line);
     }
 
-    // ---- gold link between target and successor ----
     if (succId != -1 && idx(targetId) >= 0 && idx(succId) >= 0 &&
         (animPhase == ANIM_FLASH || animPhase == ANIM_SLIDE))
     {
@@ -477,14 +476,12 @@ void Act2Level3Screen::draw()
             CircleShape halo(radius + 13);
             halo.setOrigin(radius + 13, radius + 13);
             halo.setPosition(n.x, n.y);
-            halo.setFillColor(Color(240, 190, 50, (Uint8)(alpha / 3)));
+            halo.setFillColor(Color(150, 60, 220, (Uint8)(alpha / 3)));
             window.draw(halo);
         }
 
-        // while the value slides, the target shows its old value hidden behind the token
         drawText(window, font, to_string(n.value), 26, n.x, n.y, Color::White, true);
 
-        // text labels so colour is never the only signal
         if (isResult)
             drawText(window, font, "NEW VALUE", 16, n.x, n.y - 46, Color(120, 255, 120), true);
         else if (isSucc)
@@ -509,9 +506,9 @@ void Act2Level3Screen::draw()
         CircleShape token(26);
         token.setOrigin(26, 26);
         token.setPosition(tx, ty);
-        token.setFillColor(Color(160, 120, 30));
+        token.setFillColor(Color(110, 127, 235));
         token.setOutlineThickness(5);
-        token.setOutlineColor(Color(255, 215, 70));
+        token.setOutlineColor(Color(110, 127, 235));
         window.draw(token);
 
         drawText(window, font, to_string(succValue), 24, tx, ty, Color::White, true);
@@ -549,7 +546,7 @@ void Act2Level3Screen::draw()
 
             if (locked)                  btn.setOutlineColor(Color(90, 60, 110));
             else if (hover == i + 1)     btn.setOutlineColor(Color(255, 215, 70));
-            else                         btn.setOutlineColor(Color(180, 100, 220));
+            else                         btn.setOutlineColor(Color(100, 108, 220));
             window.draw(btn);
 
             drawText(window, font, labels[i], 18, BTN_X + i * BTN_STEP + BTN_W / 2, BTN_Y + BTN_H / 2,

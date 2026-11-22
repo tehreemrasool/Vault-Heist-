@@ -1,4 +1,5 @@
 #include "screen.h"
+#include "helpers.h"
 using namespace std;
 string getString(int level)
 {
@@ -7,11 +8,16 @@ string getString(int level)
     if (level == 3)return "Security breach detected.\nThe alarm is spreading\nthrough every connected level.\nCalculate how far it can reach\n before the entire vault locks down.";
     if (level == 4) return "Every path has an origin.\nFind the chamber where two\n journeys become one.";
     if (level == 5) return "\tWhat stands on the left\n\tmust stand on the right.\n\tWhat stands on the right\n\t must stand on the left.\nOnly then will the path reveal itself.";
-    if (level == 6)  return "\tThe treasure is known,\n\tbut the way is not.\n\tEvery room whispers a number.\n\tSmaller, go left.\n\tLarger, go right.\n\tDo not wander,\n  or the guards will find you.";
+    if (level == 6)  return "\t\t\tThe treasure is known,\n\t\t\tbut the way is not.\n\t\t\tEvery room whispers a number.\n\t\t\tSmaller, go left.\n\t\t\tLarger, go right.\n\t\t\tDo not wander,\n\t \t or the guards will find you.";
     if (level == 7)  return "\tThe vault must hold\n\t more than it does.\n\tPlace each new treasure\n\t where the order demands,\n\tor the architect's\n\tdesign will crumble.";
-    if (level == 8)  return "\tSome rooms must fall.\n\tA lone leaf may simply vanish,\nbut a room with heirs must\n hand down its place.\nKnow which case you face\n before you strike.";
-    if (level == 9)  return "\tYou need not walk every hall.\n\tOnly the rooms between two values\n\thold what you came for.\n\tLeave the rest in the dark.";
-    if (level == 10) return "The Lazy Architect built\n each room as it arrived,\none after another,\n until the vault became a corridor.\nThe alarm will close in.\n Find the treasure before it does.";
+    if (level == 8)  return "\t\tSome rooms must fall.\n\t\tA lone leaf may simply vanish,\n\t\tbut a room with heirs must\n\t\t hand down its place.\n\t\tKnow which case you face\n\t\t before you strike.";
+    if (level == 9)  return "\t\tYou need not walk every hall.\n\t\tOnly the rooms between two values\n\t\thold what you came for.\n\t\tLeave the rest in the dark.";
+    if (level == 10) return "\tThe Lazy Architect built\n\t each room as it arrived,\n\tone after another,\n\t until the vault became a corridor.\n\tThe alarm will close in.\n\t Find the treasure before it does.";
+    if (level == 11) return "\tA tree may look complete,\n\t yet hide a dangerous\n\t imbalance beneath its branches.";
+    if (level == 12) return "When a tree leans too far,\n sometimes a single turn is\n enough to restore its strength";
+    if (level == 13) return  "\tNot every imbalance can be\n\t repaired with a single movement.\n\t Some problems require\n\t two precise turns.";
+    if (level == 14) return  "\t\tA true architect does not\n \tsimply repair mistakes.\n \tThey predict them before\n\t\t they happen.";
+    if (level == 15) return"You have learned to build.\n You have learned to repair.\n But can you find exactly\n what you seek without\n searching every room?";
     if (level == 16) return "The strongest treasure must always\n stand above the weaker ones. ";
     if (level == 17) return "The hierarchy has been corrupted.\n Restore the order before the guards arrive.";
     if (level == 18) return "The greatest must leave first.\n But removing the strongest\n will disturb the entire hierarchy.";
@@ -37,11 +43,7 @@ void blackScreen::setMessage(int level)
 blackScreen::blackScreen(RenderWindow& window) : Screen(window)
 {
 	font.loadFromFile("assets/fonts/MedievalSharp.ttf");
-    if (backgroundTexture.loadFromFile("assets/pictures/circle.jfif"))
-    {
-        background.setTexture(backgroundTexture);
-        background.setScale(1280.0f / backgroundTexture.getSize().x, 720.0f / backgroundTexture.getSize().y);
-    }
+    
     nextScreen = 25;
     targetScreen = 2;
     msg.setFont(font);
@@ -49,11 +51,26 @@ blackScreen::blackScreen(RenderWindow& window) : Screen(window)
     msg.setCharacterSize(25);
     msg.setPosition(500, 200);
     setMessage(targetScreen - 1);
+    menuButton = makeRoundedRect(360, 70, 18);
+    menuButton.setPosition(460, 590);                 
+    menuButton.setFillColor(Color::White);
+    menuButton.setOutlineThickness(4);
+    menuButton.setOutlineColor(Color::White);
+
+    menuText.setFont(font);
+    menuText.setString("MAIN MENU");
+    menuText.setCharacterSize(32);
+    menuText.setFillColor(Color::Black);
+    centerText(menuText, menuButton);
     
 }
 void blackScreen::update(float time)
 {
-  
+    Vector2f mouse = (Vector2f)Mouse::getPosition(window);
+    bool hot = menuButton.getGlobalBounds().contains(mouse);
+
+    menuButton.setFillColor(hot ? Color(240, 140, 220) : Color(212, 110, 194));
+    menuButton.setOutlineColor(hot ? Color(255, 215, 70) : Color::White);
 }
 void blackScreen::onEnter()
 {
@@ -71,7 +88,12 @@ void blackScreen::handleInput()
 
         if (event.type == Event::MouseButtonPressed && event.mouseButton.button == Mouse::Left)
         {
-            nextScreen = targetScreen;
+            Vector2f click((float)event.mouseButton.x, (float)event.mouseButton.y);
+
+            if (menuButton.getGlobalBounds().contains(click))
+                nextScreen = 1;                
+            else
+                nextScreen = targetScreen;      
         }
     }
 
@@ -79,9 +101,49 @@ void blackScreen::handleInput()
 
 void blackScreen::draw()
 {
+    if (targetScreen - 1 >= 1 && targetScreen - 1 <= 5)
+    {
+        if (backgroundTexture.loadFromFile("assets/pictures/circle.jfif"))
+        {
+            background.setTexture(backgroundTexture);
+            background.setScale(1280.0f / backgroundTexture.getSize().x, 720.0f / backgroundTexture.getSize().y);
+        }
+    }
+    else if (targetScreen - 1 <= 10)
+    {
+        if (backgroundTexture.loadFromFile("assets/pictures/act2.jfif"))
+        {
+            background.setTexture(backgroundTexture);
+            background.setScale(1280.0f / backgroundTexture.getSize().x, 720.0f / backgroundTexture.getSize().y);
+        }
+
+    }
+    else if (targetScreen - 1 <= 15)
+    {
+        if (backgroundTexture.loadFromFile("assets/pictures/act3.jfif"))
+        {
+            background.setTexture(backgroundTexture);
+            background.setScale(1280.0f / backgroundTexture.getSize().x, 720.0f / backgroundTexture.getSize().y);
+        }
+
+    }
+    else if (targetScreen - 1 <= 20)
+    {
+        if (backgroundTexture.loadFromFile("assets/pictures/act4.jfif"))
+        {
+            background.setTexture(backgroundTexture);
+            background.setScale(1280.0f / backgroundTexture.getSize().x, 720.0f / backgroundTexture.getSize().y);
+        }
+
+    }
+   
+    
     window.clear();
     window.draw(background);
     window.draw(msg);
+    drawText(window, font, "Click anywhere to continue", 18, 640, 560, Color::White, true);
+    window.draw(menuButton);
+    window.draw(menuText);
 }
 
 //-----------------------------------------MAP--------------------------------------------------

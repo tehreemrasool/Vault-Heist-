@@ -730,7 +730,11 @@ void Act4Level2Screen::draw()
 Act4Level3Screen::Act4Level3Screen(RenderWindow& win) : Screen(win)
 {
     loadAct4Font(font);
-    loadAct4Background(backgroundTexture, background);
+    if (backgroundTexture.loadFromFile("assets/pictures/act4l3.jfif"))
+    {
+        background.setTexture(backgroundTexture);
+        background.setScale(1280.0f / backgroundTexture.getSize().x, 720.0f / backgroundTexture.getSize().y);
+    }
 
     hintButton = makeRoundedRect(200, 50, 12);
     hintButton.setPosition(50, 650);
@@ -1114,7 +1118,11 @@ void Act4Level3Screen::draw()
 Act4Level4Screen::Act4Level4Screen(RenderWindow& win) : Screen(win)
 {
     loadAct4Font(font);
-    loadAct4Background(backgroundTexture, background);
+    if (backgroundTexture.loadFromFile("assets/pictures/act4l4.jfif"))
+    {
+        background.setTexture(backgroundTexture);
+        background.setScale(1280.0f / backgroundTexture.getSize().x, 720.0f / backgroundTexture.getSize().y);
+    }
 
     hintButton = makeRoundedRect(200, 50, 12);
     hintButton.setPosition(50, 650);
@@ -1466,7 +1474,11 @@ void Act4Level4Screen::draw()
 Act4Level5Screen::Act4Level5Screen(RenderWindow& win) : Screen(win)
 {
     loadAct4Font(font);
-    loadAct4Background(backgroundTexture, background);
+    if (backgroundTexture.loadFromFile("assets/pictures/act4l5.jfif"))
+    {
+        background.setTexture(backgroundTexture);
+        background.setScale(1280.0f / backgroundTexture.getSize().x, 720.0f / backgroundTexture.getSize().y);
+    }
 
     unlockButton = makeRoundedRect(240, 50, 12);
     unlockButton.setPosition(520, 650);

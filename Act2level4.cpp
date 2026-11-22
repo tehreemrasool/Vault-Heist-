@@ -9,7 +9,7 @@ Act2Level4Screen::Act2Level4Screen(RenderWindow& win) : Screen(win)
     if (!font.loadFromFile("assets/fonts/ARIAL.ttf"))
         loadFont(font);
 
-    if (backgroundTexture.loadFromFile("assets/pictures/Act2_level4 (4).jpg"))
+    if (backgroundTexture.loadFromFile("assets/pictures/Act2_level4.jpeg"))
     {
         background.setTexture(backgroundTexture);
         background.setScale(1280.0f / backgroundTexture.getSize().x,
@@ -304,7 +304,6 @@ void Act2Level4Screen::handleInput()
             {
                 if (state == PLAYING)
                 {
-                    // first room next to a visited room that still leads toward the range
                     for (int i = 0; i < nodeCount; i++)
                     {
                         int id = nodes[i].id;
@@ -332,6 +331,8 @@ void Act2Level4Screen::handleInput()
 
             else if (e.key.code == Keyboard::R)
                 newPuzzle();
+            else if (e.key.code == Keyboard::N)
+                nextScreen = 11;
 
             else if (e.key.code == Keyboard::Return)
             {
@@ -364,9 +365,9 @@ void Act2Level4Screen::draw()
     rangeBox.setPosition(810, 70);
     alarmBox.setFillColor(Color::Black);
     rangeBox.setFillColor(Color::Black);
-    alarmBox.setOutlineColor(Color(180, 100, 220));
+    alarmBox.setOutlineColor(Color(75, 144, 184));
     alarmBox.setOutlineThickness(3);
-    rangeBox.setOutlineColor(Color(180, 100, 220));
+    rangeBox.setOutlineColor(Color(75, 144, 184));
     rangeBox.setOutlineThickness(3);
 
     window.draw(alarmBox);

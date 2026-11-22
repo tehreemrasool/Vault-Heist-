@@ -66,4 +66,10 @@ public:
     void update(float time) override;
     int getNextScreen() const override { return nextScreen; }
     void onEnter() override;
+    bool getResult(int& st, int& sc, int& al, int& pe) const override
+    {
+        if (state != WON) return false;
+        st = stars(); sc = score(); al = alarm; pe = penalties;
+        return true;
+    }
 };

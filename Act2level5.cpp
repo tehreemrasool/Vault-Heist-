@@ -33,7 +33,7 @@ Act2Level5Screen::Act2Level5Screen(RenderWindow& win) : Screen(win)
 
     storyFont.loadFromFile("assets/fonts/MedievalSharp.ttf");
 
-    if (backgroundTexture.loadFromFile("assets/pictures/Act2_level5 (5).jpg"))
+    if (backgroundTexture.loadFromFile("assets/pictures/Act2_level5.jpeg"))
     {
         background.setTexture(backgroundTexture);
         background.setScale(1280.0f / backgroundTexture.getSize().x,
@@ -375,7 +375,8 @@ void Act2Level5Screen::handleInput()
 
             else if (e.key.code == Keyboard::R)
                 newPuzzle();
-
+            else if (e.key.code == Keyboard::N)
+                nextScreen = 12;
             else if (e.key.code == Keyboard::Return)
             {
                 if (phase == PH_DELIVER && state == PLAYING)
@@ -503,9 +504,9 @@ void Act2Level5Screen::draw()
     targetBox.setPosition(810, 70);
     alarmBox.setFillColor(Color::Black);
     targetBox.setFillColor(Color::Black);
-    alarmBox.setOutlineColor(Color(180, 100, 220));
+    alarmBox.setOutlineColor(Color(75, 144, 184));
     alarmBox.setOutlineThickness(3);
-    targetBox.setOutlineColor(Color(180, 100, 220));
+    targetBox.setOutlineColor(Color(75, 144, 184));
     targetBox.setOutlineThickness(3);
 
     window.draw(alarmBox);

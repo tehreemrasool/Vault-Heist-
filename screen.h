@@ -28,6 +28,7 @@ public:
     virtual ~Screen() = default;
 
     virtual void draw() = 0;
+    virtual bool getResult(int& stars, int& score, int& alarm, int& penalties) const { return false; }
     virtual void handleInput() = 0;
     virtual void update(float time) = 0;
     virtual int getNextScreen() const = 0;
@@ -100,6 +101,13 @@ public:
     void update(float time) override;
     int getNextScreen() const override { return nextScreen; }
     void onEnter() override;
+    bool getResult(int& st, int& sc, int& al, int& pe) const override
+    {
+        if (level.getState() != act1Level1::WON) return false;
+        st = level.stars(); sc = level.score();
+        al = level.getAlarm(); pe = level.getPenalties();
+        return true;
+    }
 };
 
 // screen id 3
@@ -137,6 +145,13 @@ public:
     void update(float time) override;
     int getNextScreen() const override { return nextScreen; }
     void onEnter() override;
+    bool getResult(int& st, int& sc, int& al, int& pe) const override
+    {
+        if (level.getState() != act1Level2::WON) return false;
+        st = level.stars(); sc = level.score();
+        al = level.getWrongChecks(); pe = level.getWrongChecks();
+        return true;
+    }
 };
 
 // screen id 4
@@ -178,6 +193,14 @@ public:
     void update(float time) override;
     int getNextScreen() const override { return nextScreen; }
     void onEnter() override;
+    // Level1Screen  (use act1Level3 / act1Level4 / act1Level5 for the others)
+    bool getResult(int& st, int& sc, int& al, int& pe) const override
+    {
+        if (level.getState() != act1Level3::WON) return false;
+        st = level.stars(); sc = level.score();
+        al = level.getAlarm(); pe = level.getPenalties();
+        return true;
+    }
     //bool isFinished() const override { return level.getState() == act1Level3::WON; }
 };
 
@@ -197,6 +220,7 @@ public:
     int getNextScreen() const override { return nextScreen; }
     void onEnter() override;
     void handleInput() override;
+
 };
 
 //
@@ -248,6 +272,14 @@ public:
     void update(float time) override;
     int getNextScreen() const override { return nextScreen; }
     void onEnter() override;
+    // Level1Screen  (use act1Level3 / act1Level4 / act1Level5 for the others)
+    bool getResult(int& st, int& sc, int& al, int& pe) const override
+    {
+        if (level.getState() != act1Level4::WON) return false;
+        st = level.stars(); sc = level.score();
+        al = level.getAlarm(); pe = level.getPenalties();
+        return true;
+    }
 };
 
 // screen id 6
@@ -287,6 +319,14 @@ public:
     void update(float time) override;
     int getNextScreen() const override { return nextScreen; }
     void onEnter() override;
+    // Level1Screen  (use act1Level3 / act1Level4 / act1Level5 for the others)
+    bool getResult(int& st, int& sc, int& al, int& pe) const override
+    {
+        if (level.getState() != act1Level5::WON) return false;
+        st = level.stars(); sc = level.score();
+        al = level.getAlarm(); pe = level.getPenalties();
+        return true;
+    }
 };
 
 //screen id 25
@@ -297,7 +337,8 @@ class blackScreen :public::Screen {
     Sprite background;
     int nextScreen;
     int targetScreen;
-
+    ConvexShape menuButton;
+    Text menuText;
 public:
     blackScreen(RenderWindow& window);
     void setTarget(int screenId);
@@ -372,6 +413,14 @@ public:
     void update(float time) override;
     int getNextScreen() const override { return nextScreen; }
     void onEnter() override;
+    bool getResult(int& st, int& sc, int& al, int& pe) const override
+    {
+        if (level.getState() != act4Level1::WON) return false;   
+        st = level.stars(); sc = level.score();
+        al = level.getAlarm(); pe = level.getPenalties();
+        return true;
+    }
+
 };
 
 // screen id 18
@@ -409,6 +458,13 @@ public:
     void update(float time) override;
     int getNextScreen() const override { return nextScreen; }
     void onEnter() override;
+    bool getResult(int& st, int& sc, int& al, int& pe) const override
+    {
+        if (level.getState() != act4Level2::WON) return false; 
+        st = level.stars(); sc = level.score();
+        al = level.getAlarm(); pe = level.getPenalties();
+        return true;
+    }
 };
 
 //------------------------level 3
@@ -452,6 +508,13 @@ public:
     void update(float time) override;
     int getNextScreen() const override { return nextScreen; }
     void onEnter() override;
+    bool getResult(int& st, int& sc, int& al, int& pe) const override
+    {
+        if (level.getState() != act4Level3::WON) return false;   
+        st = level.stars(); sc = level.score();
+        al = level.getAlarm(); pe = level.getPenalties();
+        return true;
+    }
 };
 
 //----------------------level 4
@@ -490,6 +553,13 @@ public:
     void update(float time) override;
     int getNextScreen() const override { return nextScreen; }
     void onEnter() override;
+    bool getResult(int& st, int& sc, int& al, int& pe) const override
+    {
+        if (level.getState() != act4Level4::WON) return false;   
+        st = level.stars(); sc = level.score();
+        al = level.getAlarm(); pe = level.getPenalties();
+        return true;
+    }
 };
 //--------------act 4 level 5
 // screen id 21
@@ -525,6 +595,13 @@ public:
     void update(float time) override;
     int getNextScreen() const override { return nextScreen; }
     void onEnter() override;
+    bool getResult(int& st, int& sc, int& al, int& pe) const override
+    {
+        if (level.getState() != act4Level5::WON) return false;  
+        st = level.stars(); sc = level.score();
+        al = level.getAlarm(); pe = level.getPenalties();
+        return true;
+    }
 };
 
 //-------------------------------------------------------
@@ -564,6 +641,48 @@ class SandboxScreen : public Screen {
 public:
     SandboxScreen(RenderWindow& win);
     ~SandboxScreen();
+    void draw() override;
+    void handleInput() override;
+    void update(float time) override {}
+    int getNextScreen() const override { return nextScreen; }
+    void onEnter() override;
+};
+
+//----------------leaderboard---------------------------
+void saveResult(int levelId, int stars, int score);
+int  loadResults(int keys[], int maxN);
+int  previousBest(int levelId);
+
+class ResultPopup {
+    RenderWindow& window;
+    Font font;
+    bool open;
+    int action;            // 0 none, 1 continue, 2 leaderboard, 99 quit
+    int levelId, stars, score, alarm, penalties;
+    bool newBest;
+
+public:
+    ResultPopup(RenderWindow& win);
+    void show(int id, int st, int sc, int al, int pe);
+    void close() { open = false; }
+    bool isOpen() const { return open; }
+    int takeAction() { int a = action; action = 0; return a; }
+    void handleInput();
+    void draw();
+};
+
+// screen id 26
+class LeaderboardScreen : public Screen {
+    Font font;
+    Texture backgroundTexture;
+    Sprite background;
+    int nextScreen;
+    int topKeys[10];
+    int topCount;
+    int total;
+
+public:
+    LeaderboardScreen(RenderWindow& win);
     void draw() override;
     void handleInput() override;
     void update(float time) override {}

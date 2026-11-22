@@ -119,6 +119,7 @@ private:
 	int checkedCount;
 	int alarm;
 	int state;
+	int penalities;
 
 	void resetLinks()
 	{
@@ -130,6 +131,7 @@ private:
 	}
 
 public:
+	int getPenalties() const { return penalities; }
 	act4Level1()
 	{
 		n = 0; alarm = 0; state = LOST; checkedCount = 0;
@@ -378,7 +380,7 @@ public:
 	{
 		reset();
 	}
-
+	int getPenalties() const { return penalities; }
 	void reset()
 	{
 		n = 0;
@@ -476,6 +478,7 @@ private:
 	int cap;
 
 public:
+	int getPenalties() const { return penalities; }
 	act4Level3()
 	{
 		reset();
@@ -633,6 +636,7 @@ private:
 	int cap;
 
 public:
+	int getPenalties() const { return penalities; }
 	act4Level4()
 	{
 		reset();
@@ -815,6 +819,7 @@ private:
 	int cap;
 
 public:
+	int getPenalties() const { return penalities; }
 	act4Level5()
 	{
 		reset();

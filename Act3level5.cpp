@@ -32,7 +32,7 @@ Act3Level5Screen::Act3Level5Screen(RenderWindow& win) : Screen(win)
 {
     loadFont(font);
 
-    if (backgroundTexture.loadFromFile("assets/pictures/Act3_level5.jpg"))
+    if (backgroundTexture.loadFromFile("assets/pictures/Act3_level5.jpeg"))
     {
         background.setTexture(backgroundTexture);
         background.setScale(1280.0f / backgroundTexture.getSize().x,
@@ -144,7 +144,6 @@ void Act3Level5Screen::snapshotPositions()
     }
 }
 
-// existing rooms slide from their old spot, a new room drops in from above
 void Act3Level5Screen::startTween()
 {
     newId = -1;
@@ -171,9 +170,6 @@ void Act3Level5Screen::startTween()
     animT = 0.0f;
 }
 
-// Decides what round r is (mutating t with one insert/delete if the round
-// shifts the vault) and how many clicks the perfect run needs.
-// Used on a scratch copy to compute the optimum, then again on the real tree.
 void Act3Level5Screen::planRound(AVLTree& t, int r, int& type, int& k, int& rank,
     int& clicks, int& mutKey, int& mutKind)
 {
@@ -226,11 +222,11 @@ void Act3Level5Screen::planRound(AVLTree& t, int r, int& type, int& k, int& rank
             {
                 k = pick;
                 rank = rk;
-                clicks = cnt - 1;          // the root is the entrance, already visited
+                clicks = cnt - 1;          
             }
         }
 
-        if (k == 0)                         // extreme ranks are never the root
+        if (k == 0)                       
         {
             k = 1;
             rank = (type == T_LARGE) ? n : 1;
@@ -260,7 +256,6 @@ void Act3Level5Screen::updateGuide()
         " rooms. Looking for #" + to_string(curK);
 }
 
-// moves the target rank into the subtree we are about to step into
 void Act3Level5Screen::advanceK()
 {
     int ci = indexOfId(path[step - 1]);
@@ -296,7 +291,7 @@ void Act3Level5Screen::startRound(int r)
     if (mutKind != 0)
     {
         int rots = tree.getLastRotationCount();
-        bool valid = tree.isBalanced();     // checks structure, heights, sizes, balance
+        bool valid = tree.isBalanced();     
         startTween();
 
         message = string((mutKind == 1) ? "Key " : "Key ") + to_string(mutKey) +
@@ -308,20 +303,19 @@ void Act3Level5Screen::startRound(int r)
 
     if (roundType == T_AUDIT)
     {
-        // the boss corrupts one stored size
         unsigned rng = puzzleSeed * 31u + (unsigned)(r + 3) * 977u;
         int idx = (int)(AVLTree::nextRandom(rng) % (unsigned)nodeCount);
         int fake = nodes[idx].size + 1 + (int)(AVLTree::nextRandom(rng) % 2);
 
         corruptTrueSize = nodes[idx].size;
         tree.forceStoredSize(nodes[idx].id, fake);
-        nodes[idx].size = fake;             // keep the display copy in sync
+        nodes[idx].size = fake;             
     }
     else
     {
         pathCount = tree.kthPath(roundRank, path, MAX_PATH);
         if (pathCount > MAX_PATH) pathCount = MAX_PATH;
-        step = 1;                           // the root is the entrance
+        step = 1;                        
         curK = roundRank;
         updateGuide();
     }
@@ -337,7 +331,6 @@ void Act3Level5Screen::restartRun()
     tree.resetTree();
     tree.buildRandomAVL(puzzleSeed, n, 99);
 
-    // dry run on a scratch copy: the optimum is computed by the model
     AVLTree sim;
     sim.setRecordEvents(false);
     sim.cloneFrom(tree);
@@ -610,12 +603,12 @@ void Act3Level5Screen::handleInput()
                 useHint();
 
             else if (e.key.code == Keyboard::N)
-                nextScreen = NEXT_SCREEN;
+                nextScreen = 17;
 
             else if (e.key.code == Keyboard::Return)
             {
                 if (state == WON)
-                    nextScreen = NEXT_SCREEN;
+                    nextScreen = 17;
             }
         }
     }
@@ -660,9 +653,9 @@ void Act3Level5Screen::draw()
     roundBox.setPosition(910, 70);
     alarmBox.setFillColor(Color::Black);
     roundBox.setFillColor(Color::Black);
-    alarmBox.setOutlineColor(Color(180, 100, 220));
+    alarmBox.setOutlineColor(Color(213, 41, 69));
     alarmBox.setOutlineThickness(3);
-    roundBox.setOutlineColor(Color(180, 100, 220));
+    roundBox.setOutlineColor(Color(213, 41, 69));
     roundBox.setOutlineThickness(3);
 
     window.draw(alarmBox);

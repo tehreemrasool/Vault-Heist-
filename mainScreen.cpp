@@ -114,6 +114,8 @@ void MainMenuScreen::handleInput()
                 nextScreen = 1;   
             if (extraButton.getGlobalBounds().contains(click))
                 nextScreen = 23;   
+            if (leaderboardButton.getGlobalBounds().contains(click))
+                nextScreen = 26;
 
             levelNumber = 1;
         }

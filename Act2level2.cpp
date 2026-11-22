@@ -376,9 +376,9 @@ void Act2Level2Screen::draw()
     lootBox.setPosition(810, 70);
     alarmBox.setFillColor(Color::Black);
     lootBox.setFillColor(Color::Black);
-    alarmBox.setOutlineColor(Color(22, 66, 157));
+    alarmBox.setOutlineColor(Color(75, 144, 184));
     alarmBox.setOutlineThickness(3);
-    lootBox.setOutlineColor(Color(22, 66, 157));
+    lootBox.setOutlineColor(Color(75, 144, 184));
     lootBox.setOutlineThickness(3);
 
     window.draw(alarmBox);
@@ -495,9 +495,9 @@ void Act2Level2Screen::draw()
             CircleShape shade(radius);
             shade.setOrigin(radius, radius);
             shade.setPosition(n.x, n.y);
-            shade.setFillColor(Color(160, 70, 230, (Uint8)alpha));
+            shade.setFillColor(Color(88, 70, 230, (Uint8)alpha));
             shade.setOutlineThickness(7);
-            shade.setOutlineColor(Color(190, 110, 255, (Uint8)alpha));
+            shade.setOutlineColor(Color(110, 127, 235, (Uint8)alpha));
             window.draw(shade);
         }
 

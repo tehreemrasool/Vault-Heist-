@@ -278,9 +278,9 @@ void Act2Level1Screen::draw()
     targetBox.setPosition(810, 70);
     alarmBox.setFillColor(Color::Black);
     targetBox.setFillColor(Color::Black);
-    alarmBox.setOutlineColor(Color(22, 66, 157));
+    alarmBox.setOutlineColor(Color(75, 144, 184));
     alarmBox.setOutlineThickness(3);
-    targetBox.setOutlineColor(Color(22, 66, 157));
+    targetBox.setOutlineColor(Color(75, 144, 184));
     targetBox.setOutlineThickness(3);
 
     window.draw(alarmBox);
@@ -360,15 +360,15 @@ void Act2Level1Screen::draw()
             CircleShape halo(radius + 14);
             halo.setOrigin(radius + 14, radius + 14);
             halo.setPosition(n.x, n.y);
-            halo.setFillColor(Color(150, 60, 220, (Uint8)(alpha / 3)));
+            halo.setFillColor(Color(75, 144, 184, (Uint8)(alpha / 3)));
             window.draw(halo);
 
             CircleShape shade(radius);
             shade.setOrigin(radius, radius);
             shade.setPosition(n.x, n.y);
-            shade.setFillColor(Color(160, 70, 230, (Uint8)alpha));
+            shade.setFillColor(Color(88, 70, 230, (Uint8)alpha));
             shade.setOutlineThickness(7);
-            shade.setOutlineColor(Color(190, 110, 255, (Uint8)alpha));
+            shade.setOutlineColor(Color(110, 127, 235, (Uint8)alpha));
             window.draw(shade);
         }
 
